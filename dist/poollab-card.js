@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.2.0";
+const CARD_VERSION = "0.2.2";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
@@ -319,6 +319,7 @@ class PoolLabCardEditor extends HTMLElement {
         });
         let m = parseInt(v.measurements, 10); if (!(m >= 1 && m <= 3)) m = 3;
         this._config = {
+          ...this._config,
           title: v.title, measurements: m,
           show_date: v.show_date !== false, show_target: v.show_target !== false,
           entities: ents,
