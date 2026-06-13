@@ -148,6 +148,8 @@ class PoolLabCard extends HTMLElement {
 
   _num(v, dec) { return isFinite(v) ? v.toFixed(dec).replace(".", ",") : String(v); }
 
+  _clean(v) { return isFinite(v) ? String(Math.round(v * 1000) / 1000).replace(".", ",") : String(v); }
+
   _fetchHistory() {
     const ids = this._config.entities.map((e) => e.entity).filter(Boolean);
     if (!ids.length) return;
@@ -245,9 +247,9 @@ class PoolLabCard extends HTMLElement {
 
     let targetHtml = "";
     if (this._config.show_target !== false) {
-      if (lo != null && hi != null) targetHtml = "cible " + this._num(lo, this._decimals(cfg, lo)) + String.fromCharCode(8211) + this._num(hi, this._decimals(cfg, hi));
-      else if (hi != null) targetHtml = "max " + this._num(hi, this._decimals(cfg, hi));
-      else if (lo != null) targetHtml = "min " + this._num(lo, this._decimals(cfg, lo));
+      if (lo != null && hi != null) targetHtml = "cible " + this._clean(lo) + String.fromCharCode(8211) + this._clean(hi);
+      else if (hi != null) targetHtml = "max " + this._clean(hi);
+      else if (lo != null) targetHtml = "min " + this._clean(lo);
     }
     const pillHtml = pill ? "<span class=\"pl-pill " + pillCls + "\">" + pill + "</span>" : "";
 
