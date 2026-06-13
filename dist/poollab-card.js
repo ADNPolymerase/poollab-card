@@ -1,9 +1,10 @@
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.2.0";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
 const _A = String.fromCharCode(224);
 const _o = String.fromCharCode(244);
+const OVER_THRESHOLD = 100000;
 
 console.info(
   "%c POOLLAB-CARD %c v" + CARD_VERSION + " ",
@@ -46,6 +47,8 @@ function plCleanName(st) {
   return map[key] || n;
 }
 
+function plKey(id) { return "e_" + String(id).replace(/[^a-z0-9]/gi, "_"); }
+
 class PoolLabCard extends HTMLElement {
   static getConfigElement() { return document.createElement("poollab-card-editor"); }
 
@@ -57,14 +60,16 @@ class PoolLabCard extends HTMLElement {
       const ib = order.findIndex((k) => b.includes(k));
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
     });
-    return { title: "PoolLab", show_date: true, over_threshold: 100000, entities: all };
+    return { title: "PoolLab", measurements: 3, show_date: true, entities: all };
   }
 
   setConfig(config) {
     const ents = (config.entities || []).map((e) => (typeof e === "string" ? { entity: e } : { ...e }));
+    let m = parseInt(config.measurements, 10);
+    if (!(m >= 1 && m <= 3)) m = 3;
     this._config = {
-      title: "PoolLab", show_date: true, show_target: true, over_threshold: 100000,
-      ...config, entities: ents,
+      title: "PoolLab", show_date: true, show_target: true,
+      ...config, measurements: m, entities: ents,
     };
     this._built = false;
     this._hist = this._hist || {};
@@ -96,17 +101,18 @@ class PoolLabCard extends HTMLElement {
         .pl-title { font-size: 1.2em; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
         .pl-sub { margin-left: auto; font-size: 0.62em; font-weight: 400; color: var(--secondary-text-color); }
         .pl-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--divider-color); }
-        .pl-row[hidden] { display: none; }
-        .pl-name { display: flex; align-items: center; gap: 10px; }
-        .pl-name ha-icon { color: var(--secondary-text-color); --mdc-icon-size: 22px; }
+        .pl-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .pl-name ha-icon { color: var(--secondary-text-color); --mdc-icon-size: 22px; flex: none; }
         .pl-pname { font-size: 0.95em; font-weight: 500; }
-        .pl-date { font-size: 0.72em; color: var(--secondary-text-color); }
-        .pl-trend { display: flex; align-items: baseline; gap: 7px; }
-        .pl-prev { font-size: 0.8em; color: var(--secondary-text-color); }
+        .pl-trend { display: flex; align-items: flex-end; gap: 8px; }
+        .pl-m { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
+        .pl-mval { font-size: 0.82em; color: var(--secondary-text-color); }
+        .pl-mdate { font-size: 0.62em; color: var(--secondary-text-color); opacity: 0.8; }
+        .pl-curline { display: flex; align-items: baseline; gap: 4px; }
         .pl-cur { font-size: 1.4em; font-weight: 700; }
         .pl-unit { font-size: 0.72em; color: var(--secondary-text-color); }
-        .pl-arrow { --mdc-icon-size: 16px; }
-        .pl-right { text-align: right; min-width: 92px; }
+        .pl-arrow { --mdc-icon-size: 16px; align-self: center; }
+        .pl-right { text-align: right; min-width: 88px; }
         .pl-pill { display: inline-block; font-size: 0.72em; font-weight: 600; padding: 3px 9px; border-radius: 9px; }
         .pl-target { font-size: 0.74em; color: var(--secondary-text-color); margin-top: 3px; }
         .pl-ok { color: #00b894; }
@@ -140,6 +146,8 @@ class PoolLabCard extends HTMLElement {
     return 0;
   }
 
+  _num(v, dec) { return isFinite(v) ? v.toFixed(dec).replace(".", ",") : String(v); }
+
   _fetchHistory() {
     const ids = this._config.entities.map((e) => e.entity).filter(Boolean);
     if (!ids.length) return;
@@ -148,7 +156,7 @@ class PoolLabCard extends HTMLElement {
     this._histBusy = true;
     this._hass.callWS({
       type: "history/history_during_period",
-      start_time: new Date(now - 180 * 86400000).toISOString(),
+      start_time: new Date(now - 365 * 86400000).toISOString(),
       end_time: new Date(now).toISOString(),
       entity_ids: ids,
       minimal_response: false,
@@ -164,11 +172,10 @@ class PoolLabCard extends HTMLElement {
           const s = states[i];
           const a = s.a || {};
           const v = parseFloat(s.s);
-          if (!isFinite(v) || a.measure == null) continue;
-          const key = a.measure;
-          if (seen.has(key)) continue;
-          seen.add(key);
-          list.push({ value: v, measured_at: a.measured_at, measure: a.measure });
+          if (!isFinite(v) || v >= OVER_THRESHOLD || a.measure == null) continue;
+          if (seen.has(a.measure)) continue;
+          seen.add(a.measure);
+          list.push({ value: v, measured_at: a.measured_at });
           if (list.length >= 4) break;
         }
         out[id] = list;
@@ -180,68 +187,73 @@ class PoolLabCard extends HTMLElement {
     }).catch(() => { this._histBusy = false; this._histAt = Date.now(); });
   }
 
+  _measHtml(val, date, dec, cls) {
+    const dateHtml = (this._config.show_date && date) ? "<span class=\"pl-mdate\">" + this._fmtDate(date) + "</span>" : "";
+    return "<div class=\"pl-m\"><span class=\"" + (cls || "pl-mval") + "\">" + this._num(val, dec) + "</span>" + dateHtml + "</div>";
+  }
+
   _rowHtml(cfg) {
     const st = this._state(cfg.entity);
     if (!st) {
-      return "<div class=\"pl-row pl-unavailable\"><div class=\"pl-name\"><ha-icon icon=\"mdi:help-circle-outline\"></ha-icon><div><div class=\"pl-pname\">" + (cfg.name || cfg.entity) + "</div></div></div><div class=\"pl-trend\"><span class=\"pl-cur\">" + String.fromCharCode(8212) + "</span></div><div class=\"pl-right\"></div></div>";
+      return "<div class=\"pl-row pl-unavailable\"><div class=\"pl-name\"><ha-icon icon=\"mdi:help-circle-outline\"></ha-icon><div class=\"pl-pname\">" + (cfg.name || cfg.entity) + "</div></div><div class=\"pl-trend\"><span class=\"pl-cur\">" + String.fromCharCode(8212) + "</span></div><div class=\"pl-right\"></div></div>";
     }
     const a = st.attributes;
     const name = cfg.name || plCleanName(st);
     const icon = cfg.icon || a.icon || "mdi:water-percent";
     const unit = cfg.unit != null ? cfg.unit : (a.unit_of_measurement || "");
     const val = parseFloat(st.state);
-    const over = isFinite(val) && val >= (this._config.over_threshold || 100000);
+    const over = isFinite(val) && val >= OVER_THRESHOLD;
+    const N = this._config.measurements || 3;
 
-    let lo = cfg.min != null ? cfg.min : (a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null);
-    let hi = cfg.max != null ? cfg.max : (a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null);
+    let lo = cfg.min != null && cfg.min !== "" ? parseFloat(cfg.min) : (a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null);
+    let hi = cfg.max != null && cfg.max !== "" ? parseFloat(cfg.max) : (a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null);
 
+    const dec = this._decimals(cfg, isFinite(val) ? val : 0);
     let cls = "pl-neutral", pill = "", pillCls = "pl-pill-neutral", valTxt;
     if (over) {
       cls = "pl-warn"; pill = "OVER"; pillCls = "pl-pill-warn";
       const tmax = cfg.test_max != null ? cfg.test_max : (plTestMax(a.parameter) != null ? plTestMax(a.parameter) : hi);
       valTxt = tmax != null ? ("> " + tmax) : "OVER";
     } else {
-      const dec = this._decimals(cfg, val);
-      valTxt = isFinite(val) ? val.toFixed(dec).replace(".", ",") : st.state;
+      valTxt = isFinite(val) ? this._num(val, dec) : st.state;
       if (lo != null && val < lo) { cls = "pl-warn"; pill = "Trop bas"; pillCls = "pl-pill-warn"; }
       else if (hi != null && val > hi) { cls = "pl-warn"; pill = "Trop haut"; pillCls = "pl-pill-warn"; }
       else if (lo != null || hi != null) { cls = "pl-ok"; pill = "OK"; pillCls = "pl-pill-ok"; }
     }
 
     const hist = (this._hist && this._hist[cfg.entity]) || [];
-    let prevHtml = "", arrowHtml = "";
-    if (!over && hist.length >= 2) {
-      const dec = this._decimals(cfg, val);
-      const prevs = hist.slice(1, 3).reverse();
-      prevHtml = prevs.map((p) => "<span class=\"pl-prev\">" + p.value.toFixed(dec).replace(".", ",") + "</span>").join("");
-      const prev1 = hist[1].value;
-      if (isFinite(prev1) && isFinite(val) && Math.abs(val - prev1) > 1e-9) {
-        const up = val > prev1;
-        let acls = "pl-prev";
+    const curDate = over ? a.measured_at : (hist[0] ? hist[0].measured_at : a.measured_at);
+
+    let trendHtml = "";
+    if (!over && N > 1) {
+      const prevs = hist.slice(1, N).reverse();
+      trendHtml += prevs.map((p) => this._measHtml(p.value, p.measured_at, dec, "pl-mval")).join("");
+      if (cfg.trend !== false && hist.length >= 2 && Math.abs(val - hist[1].value) > 1e-9) {
+        const prev1 = hist[1].value;
+        let acls = "pl-mval";
         if (lo != null && hi != null) {
           const mid = (lo + hi) / 2;
           acls = Math.abs(val - mid) < Math.abs(prev1 - mid) ? "pl-ok" : "pl-warn";
         }
-        arrowHtml = "<ha-icon class=\"pl-arrow " + acls + "\" icon=\"" + (up ? "mdi:arrow-top-right" : "mdi:arrow-bottom-right") + "\"></ha-icon>";
+        trendHtml += "<ha-icon class=\"pl-arrow " + acls + "\" icon=\"" + (val > prev1 ? "mdi:arrow-top-right" : "mdi:arrow-bottom-right") + "\"></ha-icon>";
       }
     }
 
-    const dateTxt = this._config.show_date ? this._fmtDate(a.measured_at) : "";
-    const dateHtml = dateTxt ? "<div class=\"pl-date\">" + dateTxt + "</div>" : "";
+    const curDateHtml = (this._config.show_date && curDate) ? "<span class=\"pl-mdate\">" + this._fmtDate(curDate) + "</span>" : "";
+    const unitHtml = (unit && !over) ? "<span class=\"pl-unit\">" + unit + "</span>" : "";
+    const curHtml = "<div class=\"pl-m\"><div class=\"pl-curline\"><span class=\"pl-cur " + cls + "\">" + valTxt + "</span>" + unitHtml + "</div>" + curDateHtml + "</div>";
 
     let targetHtml = "";
     if (this._config.show_target !== false) {
-      if (lo != null && hi != null) targetHtml = "cible " + String(lo).replace(".", ",") + String.fromCharCode(8211) + String(hi).replace(".", ",");
-      else if (hi != null) targetHtml = "max " + String(hi).replace(".", ",");
-      else if (lo != null) targetHtml = "min " + String(lo).replace(".", ",");
+      if (lo != null && hi != null) targetHtml = "cible " + this._num(lo, this._decimals(cfg, lo)) + String.fromCharCode(8211) + this._num(hi, this._decimals(cfg, hi));
+      else if (hi != null) targetHtml = "max " + this._num(hi, this._decimals(cfg, hi));
+      else if (lo != null) targetHtml = "min " + this._num(lo, this._decimals(cfg, lo));
     }
-
     const pillHtml = pill ? "<span class=\"pl-pill " + pillCls + "\">" + pill + "</span>" : "";
-    const unitHtml = (unit && !over) ? "<span class=\"pl-unit\">" + unit + "</span>" : "";
 
     return "<div class=\"pl-row\">" +
-      "<div class=\"pl-name\"><ha-icon icon=\"" + icon + "\"></ha-icon><div><div class=\"pl-pname\">" + name + "</div>" + dateHtml + "</div></div>" +
-      "<div class=\"pl-trend\">" + prevHtml + arrowHtml + "<span class=\"pl-cur " + cls + "\">" + valTxt + "</span>" + unitHtml + "</div>" +
+      "<div class=\"pl-name\"><ha-icon icon=\"" + icon + "\"></ha-icon><div class=\"pl-pname\">" + name + "</div></div>" +
+      "<div class=\"pl-trend\">" + trendHtml + curHtml + "</div>" +
       "<div class=\"pl-right\">" + pillHtml + (targetHtml ? "<div class=\"pl-target\">" + targetHtml + "</div>" : "") + "</div>" +
       "</div>";
   }
@@ -249,7 +261,6 @@ class PoolLabCard extends HTMLElement {
   _update() {
     if (!this._config) return;
     this.querySelector("#pl-title-text").textContent = this._config.title || "PoolLab";
-
     this._fetchHistory();
 
     const sub = this.querySelector("#pl-sub");
@@ -266,7 +277,10 @@ class PoolLabCard extends HTMLElement {
 
 class PoolLabCardEditor extends HTMLElement {
   setConfig(config) {
-    this._config = { title: "PoolLab", show_date: true, show_target: true, over_threshold: 100000, ...config };
+    const ents = (config.entities || []).map((e) => (typeof e === "string" ? { entity: e } : { ...e }));
+    let m = parseInt(config.measurements, 10);
+    if (!(m >= 1 && m <= 3)) m = 3;
+    this._config = { title: "PoolLab", show_date: true, show_target: true, ...config, measurements: m, entities: ents };
     this._render();
   }
   set hass(hass) { this._hass = hass; this._render(); }
@@ -279,21 +293,80 @@ class PoolLabCardEditor extends HTMLElement {
       this._form = document.createElement("ha-form");
       this._form.computeLabel = (s) => s.label || s.name;
       this._form.addEventListener("value-changed", (ev) => {
-        this._config = ev.detail.value;
+        const v = ev.detail.value;
+        const ids = v.entities || [];
+        const prevMap = {};
+        (c.entities || []).forEach((e) => { prevMap[e.entity] = e; });
+        const ents = ids.map((id) => {
+          const o = v[plKey(id)] || {};
+          const r = { entity: id };
+          const old = prevMap[id] || {};
+          const nm = o.name != null ? o.name : old.name;
+          if (nm) r.name = nm;
+          const mn = o.min != null ? o.min : old.min;
+          if (mn != null && mn !== "") r.min = mn;
+          const mx = o.max != null ? o.max : old.max;
+          if (mx != null && mx !== "") r.max = mx;
+          const tr = o.trend != null ? o.trend : old.trend;
+          if (tr === false) r.trend = false;
+          if (old.icon) r.icon = old.icon;
+          if (old.unit != null) r.unit = old.unit;
+          if (old.decimals != null) r.decimals = old.decimals;
+          if (old.test_max != null) r.test_max = old.test_max;
+          return r;
+        });
+        let m = parseInt(v.measurements, 10); if (!(m >= 1 && m <= 3)) m = 3;
+        this._config = {
+          title: v.title, measurements: m,
+          show_date: v.show_date !== false, show_target: v.show_target !== false,
+          entities: ents,
+        };
+        this._render();
         this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: this._config }, bubbles: true, composed: true }));
       });
       this.appendChild(this._form);
     }
-    const data = { ...c, entities: (c.entities || []).map((e) => (typeof e === "string" ? e : e.entity)) };
+
+    const data = {
+      title: c.title, measurements: String(c.measurements || 3),
+      show_date: c.show_date !== false, show_target: c.show_target !== false,
+      entities: c.entities.map((e) => e.entity),
+    };
+    for (const e of c.entities) {
+      data[plKey(e.entity)] = {
+        name: e.name || "", min: e.min != null ? e.min : "", max: e.max != null ? e.max : "",
+        trend: e.trend !== false,
+      };
+    }
+
+    const schema = [
+      { name: "title", label: "Titre", selector: { text: {} } },
+      { name: "measurements", label: "Mesures affich" + _e + "es", selector: { select: { mode: "dropdown", options: [
+        { value: "1", label: "Derni" + _eg + "re seulement" },
+        { value: "2", label: "2 derni" + _eg + "res" },
+        { value: "3", label: "3 derni" + _eg + "res" },
+      ] } } },
+      { name: "show_date", label: "Afficher les dates de mesure", selector: { boolean: {} } },
+      { name: "show_target", label: "Afficher la cible", selector: { boolean: {} } },
+      { name: "entities", label: "Capteurs PoolLab", selector: { entity: { multiple: true, domain: "sensor" } } },
+    ];
+    for (const e of c.entities) {
+      const st = this._hass.states[e.entity];
+      const title = e.name || (st ? plCleanName(st) : e.entity);
+      schema.push({
+        type: "expandable", name: plKey(e.entity), title: title,
+        schema: [
+          { name: "name", label: "Nom affich" + _e, selector: { text: {} } },
+          { name: "min", label: "Seuil bas (cible)", selector: { number: { mode: "box", step: "any" } } },
+          { name: "max", label: "Seuil haut (cible)", selector: { number: { mode: "box", step: "any" } } },
+          { name: "trend", label: "Afficher la tendance", selector: { boolean: {} } },
+        ],
+      });
+    }
+
     this._form.hass = this._hass;
     this._form.data = data;
-    this._form.schema = [
-      { name: "title", label: "Titre", selector: { text: {} } },
-      { name: "entities", label: "Capteurs PoolLab", selector: { entity: { multiple: true, domain: "sensor" } } },
-      { name: "show_date", label: "Afficher la date de mesure", selector: { boolean: {} } },
-      { name: "show_target", label: "Afficher la cible", selector: { boolean: {} } },
-      { name: "over_threshold", label: "Seuil OVER (au-del" + _A + " = hors mesure)", selector: { number: { min: 100, max: 10000000, mode: "box" } } },
-    ];
+    this._form.schema = schema;
   }
 }
 

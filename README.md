@@ -54,6 +54,7 @@ Or in YAML:
 ```yaml
 type: custom:poollab-card
 title: PoolLab
+measurements: 3        # 1 = latest only, up to 3 (with dates)
 show_date: true
 show_target: true
 entities:
@@ -64,17 +65,18 @@ entities:
   - sensor.my_pool_pl_alkalinity
 ```
 
-Per-parameter overrides use the object form:
+Per-parameter overrides use the object form (also editable from the UI editor):
 
 ```yaml
 entities:
   - entity: sensor.my_pool_pl_ph
     name: pH
-    min: 7.0          # override ideal target low
+    min: 7.0          # override ideal target low (green zone)
     max: 7.4          # override ideal target high
-    decimals: 2       # number of decimals shown
+    trend: true       # show/hide the trend arrow for this parameter
+    decimals: 2       # number of decimals shown (advanced, YAML only)
   - entity: sensor.my_pool_pl_chlorine_total
-    test_max: 6       # value used for the "> max" OVER display
+    test_max: 6       # value used for the "> max" OVER display (advanced)
 ```
 
 ## Options
@@ -82,12 +84,14 @@ entities:
 | Option | Default | Description |
 |---|---|---|
 | `title` | PoolLab | Card title |
-| `entities` | — | List of PoolLab sensor entities (strings, or objects with overrides) |
-| `show_date` | `true` | Show each parameter's real measurement date (`measured_at`) |
+| `measurements` | `3` | How many measurements to show per parameter: `1` (latest only), `2`, or `3` — previous ones shown with their date |
+| `entities` | — | List of PoolLab sensor entities (strings, or objects with overrides) — pick only the parameters you actually use |
+| `show_date` | `true` | Show each measurement's real date (`measured_at`) |
 | `show_target` | `true` | Show the ideal range under the status pill |
-| `over_threshold` | `100000` | Readings at or above this value are treated as OVER (out of the test's range) |
 
-Per-entity (object form): `name`, `icon`, `unit`, `min`, `max`, `decimals`, `test_max`.
+Per-entity (object form, `min` / `max` / `trend` editable in the UI editor): `name`, `icon`, `unit`, `min`, `max`, `trend`, `decimals`, `test_max`.
+
+OVER detection is fixed (the integration reports a very large value when a test exceeds its measurable range); the card shows `> max` using a built-in table of PoolLab test ceilings.
 
 ## How targets & colors work
 
