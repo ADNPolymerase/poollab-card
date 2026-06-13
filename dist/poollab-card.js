@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.2.2";
+const CARD_VERSION = "0.2.3";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
@@ -287,6 +287,23 @@ class PoolLabCardEditor extends HTMLElement {
   }
   set hass(hass) { this._hass = hass; this._render(); }
 
+  _def(id) {
+    const st = this._hass.states[id];
+    const a = st ? st.attributes : {};
+    const lo = a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null;
+    const hi = a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null;
+    return { lo, hi, ic: a.icon || "mdi:water-percent" };
+  }
+
+  _sensorOptions() {
+    const detected = Object.keys(this._hass.states).filter((e) => /^sensor\..*_pl_/.test(e));
+    const ids = Array.from(new Set([...this._config.entities.map((e) => e.entity), ...detected]));
+    return ids.map((id) => {
+      const st = this._hass.states[id];
+      return { value: id, label: st ? (st.attributes.friendly_name || id) : id };
+    });
+  }
+
   _render() {
     if (!this._hass || !this._config) return;
     const c = this._config;
@@ -301,17 +318,16 @@ class PoolLabCardEditor extends HTMLElement {
         (c.entities || []).forEach((e) => { prevMap[e.entity] = e; });
         const ents = ids.map((id) => {
           const o = v[plKey(id)] || {};
-          const r = { entity: id };
           const old = prevMap[id] || {};
-          const nm = o.name != null ? o.name : old.name;
-          if (nm) r.name = nm;
-          const mn = o.min != null ? o.min : old.min;
-          if (mn != null && mn !== "") r.min = mn;
-          const mx = o.max != null ? o.max : old.max;
-          if (mx != null && mx !== "") r.max = mx;
-          const tr = o.trend != null ? o.trend : old.trend;
-          if (tr === false) r.trend = false;
-          if (old.icon) r.icon = old.icon;
+          const d = this._def(id);
+          const r = { entity: id };
+          if (o.name) r.name = o.name;
+          if (o.icon && o.icon !== d.ic) r.icon = o.icon;
+          const mn = o.min;
+          if (mn != null && mn !== "" && !(d.lo != null && Math.abs(parseFloat(mn) - d.lo) < 1e-9)) r.min = mn;
+          const mx = o.max;
+          if (mx != null && mx !== "" && !(d.hi != null && Math.abs(parseFloat(mx) - d.hi) < 1e-9)) r.max = mx;
+          if (o.trend === false) r.trend = false;
           if (old.unit != null) r.unit = old.unit;
           if (old.decimals != null) r.decimals = old.decimals;
           if (old.test_max != null) r.test_max = old.test_max;
@@ -336,8 +352,12 @@ class PoolLabCardEditor extends HTMLElement {
       entities: c.entities.map((e) => e.entity),
     };
     for (const e of c.entities) {
+      const d = this._def(e.entity);
       data[plKey(e.entity)] = {
-        name: e.name || "", min: e.min != null ? e.min : "", max: e.max != null ? e.max : "",
+        icon: e.icon || d.ic,
+        name: e.name || "",
+        min: e.min != null ? e.min : (d.lo != null ? d.lo : ""),
+        max: e.max != null ? e.max : (d.hi != null ? d.hi : ""),
         trend: e.trend !== false,
       };
     }
@@ -351,7 +371,7 @@ class PoolLabCardEditor extends HTMLElement {
       ] } } },
       { name: "show_date", label: "Afficher les dates de mesure", selector: { boolean: {} } },
       { name: "show_target", label: "Afficher la cible", selector: { boolean: {} } },
-      { name: "entities", label: "Capteurs PoolLab", selector: { entity: { multiple: true, domain: "sensor" } } },
+      { name: "entities", label: "Capteurs PoolLab (glisser pour r" + _e + "organiser)", selector: { select: { multiple: true, reorder: true, options: this._sensorOptions() } } },
     ];
     for (const e of c.entities) {
       const st = this._hass.states[e.entity];
@@ -359,6 +379,7 @@ class PoolLabCardEditor extends HTMLElement {
       schema.push({
         type: "expandable", name: plKey(e.entity), title: title,
         schema: [
+          { name: "icon", label: "Ic" + _o + "ne", selector: { icon: {} } },
           { name: "name", label: "Nom affich" + _e, selector: { text: {} } },
           { name: "min", label: "Seuil bas (cible)", selector: { number: { mode: "box", step: "any" } } },
           { name: "max", label: "Seuil haut (cible)", selector: { number: { mode: "box", step: "any" } } },

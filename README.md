@@ -89,9 +89,13 @@ entities:
 | `show_date` | `true` | Show each measurement's real date (`measured_at`) |
 | `show_target` | `true` | Show the ideal range under the status pill |
 
-Per-entity (object form, `min` / `max` / `trend` editable in the UI editor): `name`, `icon`, `unit`, `min`, `max`, `trend`, `decimals`, `test_max`.
+Per-entity (object form, `icon` / `name` / `min` / `max` / `trend` editable in the UI editor): `name`, `icon`, `unit`, `min`, `max`, `trend`, `decimals`, `test_max`.
 
 OVER detection is fixed (the integration reports a very large value when a test exceeds its measurable range); the card shows `> max` using a built-in table of PoolLab test ceilings.
+
+### Editor
+
+The UI editor groups each chosen sensor into its own expandable section (icon, display name, thresholds, trend toggle). Reorder the sensor chips at the top to reorder the displayed rows. Thresholds are **pre-filled from the values you set in the PoolLab app** (`ideal_low` / `ideal_high`): leave them untouched to keep following the app automatically, or change them to set a card-specific override.
 
 ## How targets & colors work
 
