@@ -14,6 +14,8 @@ against its ideal target — with proper handling of **OVER** readings (values a
 
 > Not affiliated with PoolLab® / Water-i.d. — independent community card.
 
+![PoolLab Card](docs/screenshot.png)
+
 ## Why this card
 
 The PoolLab integration already exposes, for each parameter, the ideal range (`ideal_low` / `ideal_high`)
