@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo.png" alt="PoolLab Card" height="130"></p>
+
 # PoolLab Card
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
