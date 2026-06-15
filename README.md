@@ -36,9 +36,9 @@ and a status — the same targets you set in the PoolLab app. This card reads th
 ## Features
 
 - One row per parameter: name, real measurement date, previous values, current value, target, status pill
-- Current value colored by its target (green / orange), pill shows `OK` / `Trop haut` / `Trop bas` / `OVER`
+- Current value colored by its target (green / orange), pill shows localized `OK` / `Too high` / `Too low` / `OVER`
 - Trend arrow comparing the current reading to the previous one (toward the range = green, away = orange)
-- Automatic target from the entity, overridable per parameter
+- Automatic target from the entity, pH fallback target (`7.2`-`7.6`) when no entity target is exposed, overridable per parameter
 - OVER handling with a built-in table of PoolLab test ceilings (pH 8.4, chlorine 6, CYA 100, TA 200, …)
 - Native HA editor (entity picker) + full YAML control
 
@@ -63,6 +63,7 @@ Or in YAML:
 ```yaml
 type: custom:poollab-card
 title: PoolLab
+language: en           # optional; defaults to the Home Assistant frontend language
 measurements: 3        # 1 = latest only, up to 3 (with dates)
 show_date: true
 show_target: true
@@ -93,10 +94,12 @@ entities:
 | Option | Default | Description |
 |---|---|---|
 | `title` | PoolLab | Card title |
+| `language` | HA frontend language | Optional language override (`en`, `nl`, `fr`, or a custom language key from `translations`), editable in the visual editor |
 | `measurements` | `3` | How many measurements to show per parameter: `1` (latest only), `2`, or `3` — previous ones shown with their date |
 | `entities` | — | List of PoolLab sensor entities (strings, or objects with overrides) — pick only the parameters you actually use |
 | `show_date` | `true` | Show each measurement's real date (`measured_at`) |
 | `show_target` | `true` | Show the ideal range under the status pill |
+| `translations` | built-in locales | Optional custom locale overrides or new language definitions |
 
 Per-entity (object form, `icon` / `name` / `min` / `max` / `trend` editable in the UI editor): `name`, `icon`, `unit`, `min`, `max`, `trend`, `decimals`, `test_max`.
 
@@ -104,13 +107,41 @@ OVER detection is fixed (the integration reports a very large value when a test 
 
 ### Editor
 
-The UI editor groups each chosen sensor into its own expandable section (icon, display name, thresholds, trend toggle). Reorder the sensor chips at the top to reorder the displayed rows. Thresholds are **pre-filled from the values you set in the PoolLab app** (`ideal_low` / `ideal_high`): leave them untouched to keep following the app automatically, or change them to set a card-specific override.
+The UI editor groups each chosen sensor into its own expandable section (icon, display name, thresholds, trend toggle). Reorder the sensor chips at the top to reorder the displayed rows. It also exposes a language override field if you want to force `en`, `nl`, `fr`, or a custom language key from `translations`. Thresholds are **pre-filled from the values you set in the PoolLab app** (`ideal_low` / `ideal_high`) when the integration exposes them. If the integration reports `-1` for a target, the card treats it as "not configured". The card uses a built-in pH fallback target of `7.2`-`7.6`; other parameters are left empty so you can set a card-specific override.
+
+### Localization
+
+The card follows the Home Assistant frontend language automatically. Built-in languages are English (`en`), Dutch (`nl`), and French (`fr`). You can force a language with `language`, or add/override translations directly in YAML:
+
+```yaml
+type: custom:poollab-card
+language: de
+translations:
+  de:
+    numberLocale: de-DE
+    months: [Jan., Feb., Mar., Apr., Mai, Jun., Jul., Aug., Sep., Okt., Nov., Dez.]
+    parameters:
+      chlorine free: Freies Chlor
+      chlorine total: Gesamtchlor
+      cyanuric acid: Cyanursaeure
+      alkalinity: Alkalinitaet
+    ui:
+      tooLow: Zu niedrig
+      tooHigh: Zu hoch
+      target: Ziel
+      lastReading: letzte Messung
+      showTarget: Ziel anzeigen
+```
+
+Custom locale objects can define only the strings they need; missing values fall back to the built-in English strings.
 
 ## How targets & colors work
 
 - Target comes from the entity attributes `ideal_low` / `ideal_high` (what you set in the PoolLab app),
   unless you set `min` / `max` in the card config.
-- Value is green when within the range, orange when below (`Trop bas`) or above (`Trop haut`).
+- `ideal_low` / `ideal_high` values of `-1` are ignored, because the PoolLab integration uses them when no target is configured.
+- When pH has no configured target, the card falls back to `7.2`-`7.6` (midpoint `7.4`).
+- Value is green when within the range, orange when below (`Too low`) or above (`Too high`) in the active language.
 - When the integration reports an OVER value (≥ `over_threshold`), the card shows `> max` where `max`
   is the test's measurable ceiling (`test_max` override, else a built-in PoolLab lookup, else the target high).
 - The trend arrow compares the current reading to the previous one. When out of range, it's green if the
