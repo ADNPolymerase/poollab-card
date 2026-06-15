@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.3.0";
+const CARD_VERSION = "0.4.0";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
@@ -24,8 +24,66 @@ const PL_TEST_MAX = {
   "zinc": 1, "urea": 2.5, "hydrogen peroxide lr": 2.4, "hydrogen peroxide hr": 180,
 };
 
-const PL_MONTHS = ["janv.", "f" + _e + "vr.", "mars", "avr.", "mai", "juin",
-  "juil.", "ao" + String.fromCharCode(251) + "t", "sept.", "oct.", "nov.", "d" + _e + "c."];
+const PL_T = {
+  en: { last: "last reading", target: "target", maxw: "max", minw: "min", high: "Too high", low: "Too low", ok: "OK", over: "OVER",
+    title: "Title", meas: "Measurements shown", m1: "Latest only", m2: "Last 2", m3: "Last 3",
+    sdate: "Show measurement dates", starget: "Show target", sensors: "PoolLab sensors (drag to reorder)",
+    icon: "Icon", dname: "Display name", lo: "Low threshold (target)", hi: "High threshold (target)", trend: "Show trend",
+    p: { "ph": "pH", "chlorine free": "Free chlorine", "chlorine total": "Total chlorine", "chlorine combined": "Combined chlorine", "cyanuric acid": "Cyanuric acid", "alkalinity": "Alkalinity", "bromine": "Bromine", "monochloramine": "Monochloramine", "dichloramine": "Dichloramine" } },
+  fr: { last: "dernier relevé", target: "cible", maxw: "max", minw: "min", high: "Trop haut", low: "Trop bas", ok: "OK", over: "OVER",
+    title: "Titre", meas: "Mesures affichées", m1: "Dernière seulement", m2: "2 dernières", m3: "3 dernières",
+    sdate: "Afficher les dates de mesure", starget: "Afficher la cible", sensors: "Capteurs PoolLab (glisser pour réorganiser)",
+    icon: "Icône", dname: "Nom affiché", lo: "Seuil bas (cible)", hi: "Seuil haut (cible)", trend: "Afficher la tendance",
+    p: { "ph": "pH", "chlorine free": "Chlore libre", "chlorine total": "Chlore total", "chlorine combined": "Chlore combiné", "cyanuric acid": "Acide cyanurique", "alkalinity": "Alcalinité", "bromine": "Brome", "monochloramine": "Monochloramine", "dichloramine": "Dichloramine" } },
+  de: { last: "letzte Messung", target: "Sollwert", maxw: "max", minw: "min", high: "Zu hoch", low: "Zu niedrig", ok: "OK", over: "OVER",
+    title: "Titel", meas: "Angezeigte Messungen", m1: "Nur letzte", m2: "Letzte 2", m3: "Letzte 3",
+    sdate: "Messdaten anzeigen", starget: "Sollwert anzeigen", sensors: "PoolLab-Sensoren (zum Sortieren ziehen)",
+    icon: "Symbol", dname: "Anzeigename", lo: "Unterer Grenzwert (Soll)", hi: "Oberer Grenzwert (Soll)", trend: "Trend anzeigen",
+    p: { "ph": "pH", "chlorine free": "Freies Chlor", "chlorine total": "Gesamtchlor", "chlorine combined": "Gebundenes Chlor", "cyanuric acid": "Cyanursäure", "alkalinity": "Alkalinität", "bromine": "Brom", "monochloramine": "Monochloramin", "dichloramine": "Dichloramin" } },
+  es: { last: "última medición", target: "objetivo", maxw: "máx", minw: "mín", high: "Demasiado alto", low: "Demasiado bajo", ok: "OK", over: "OVER",
+    title: "Título", meas: "Mediciones mostradas", m1: "Solo la última", m2: "Últimas 2", m3: "Últimas 3",
+    sdate: "Mostrar fechas de medición", starget: "Mostrar objetivo", sensors: "Sensores PoolLab (arrastra para reordenar)",
+    icon: "Icono", dname: "Nombre mostrado", lo: "Umbral bajo (objetivo)", hi: "Umbral alto (objetivo)", trend: "Mostrar tendencia",
+    p: { "ph": "pH", "chlorine free": "Cloro libre", "chlorine total": "Cloro total", "chlorine combined": "Cloro combinado", "cyanuric acid": "Ácido cianúrico", "alkalinity": "Alcalinidad", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
+  it: { last: "ultima misura", target: "obiettivo", maxw: "max", minw: "min", high: "Troppo alto", low: "Troppo basso", ok: "OK", over: "OVER",
+    title: "Titolo", meas: "Misure mostrate", m1: "Solo l'ultima", m2: "Ultime 2", m3: "Ultime 3",
+    sdate: "Mostra le date di misura", starget: "Mostra l'obiettivo", sensors: "Sensori PoolLab (trascina per riordinare)",
+    icon: "Icona", dname: "Nome visualizzato", lo: "Soglia bassa (obiettivo)", hi: "Soglia alta (obiettivo)", trend: "Mostra l'andamento",
+    p: { "ph": "pH", "chlorine free": "Cloro libero", "chlorine total": "Cloro totale", "chlorine combined": "Cloro combinato", "cyanuric acid": "Acido cianurico", "alkalinity": "Alcalinità", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
+  nl: { last: "laatste meting", target: "streefwaarde", maxw: "max", minw: "min", high: "Te hoog", low: "Te laag", ok: "OK", over: "OVER",
+    title: "Titel", meas: "Getoonde metingen", m1: "Alleen laatste", m2: "Laatste 2", m3: "Laatste 3",
+    sdate: "Meetdatums tonen", starget: "Streefwaarde tonen", sensors: "PoolLab-sensoren (sleep om te herordenen)",
+    icon: "Pictogram", dname: "Weergavenaam", lo: "Ondergrens (streef)", hi: "Bovengrens (streef)", trend: "Trend tonen",
+    p: { "ph": "pH", "chlorine free": "Vrij chloor", "chlorine total": "Totaal chloor", "chlorine combined": "Gebonden chloor", "cyanuric acid": "Cyanuurzuur", "alkalinity": "Alkaliniteit", "bromine": "Broom", "monochloramine": "Monochlooramine", "dichloramine": "Dichlooramine" } },
+  pt: { last: "última medição", target: "alvo", maxw: "máx", minw: "mín", high: "Demasiado alto", low: "Demasiado baixo", ok: "OK", over: "OVER",
+    title: "Título", meas: "Medições mostradas", m1: "Apenas a última", m2: "Últimas 2", m3: "Últimas 3",
+    sdate: "Mostrar datas de medição", starget: "Mostrar alvo", sensors: "Sensores PoolLab (arraste para reordenar)",
+    icon: "Ícone", dname: "Nome exibido", lo: "Limite baixo (alvo)", hi: "Limite alto (alvo)", trend: "Mostrar tendência",
+    p: { "ph": "pH", "chlorine free": "Cloro livre", "chlorine total": "Cloro total", "chlorine combined": "Cloro combinado", "cyanuric acid": "Ácido cianúrico", "alkalinity": "Alcalinidade", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
+};
+
+function plLangCode(hass, cfg) {
+  let l = (cfg && cfg.language) || (hass && ((hass.locale && hass.locale.language) || hass.language)) || "en";
+  l = String(l).toLowerCase().split("-")[0];
+  return PL_T[l] ? l : "en";
+}
+
+function plParamName(st, lang) {
+  const a = st.attributes;
+  let n = a.parameter ? String(a.parameter) : (a.friendly_name || "");
+  n = n.replace(/^.*?\bPL\b\s*/i, "").trim();
+  const key = n.toLowerCase();
+  const dict = (PL_T[lang] || PL_T.en).p;
+  return dict[key] || PL_T.en.p[key] || n;
+}
+
+function plDate(iso, lang) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  try { return d.toLocaleDateString(lang, { day: "numeric", month: "short" }); }
+  catch (e) { return d.toLocaleDateString("en", { day: "numeric", month: "short" }); }
+}
 
 function plTestMax(param) {
   if (!param) return null;
@@ -33,19 +91,6 @@ function plTestMax(param) {
   if (p in PL_TEST_MAX) return PL_TEST_MAX[p];
   for (const k in PL_TEST_MAX) if (p.indexOf(k) !== -1) return PL_TEST_MAX[k];
   return null;
-}
-
-function plCleanName(st) {
-  const a = st.attributes;
-  let n = a.parameter ? String(a.parameter).replace(/^PL\s+/i, "") : (a.friendly_name || "");
-  n = n.replace(/^Ma\s+Piscine\s+PL\s+/i, "").replace(/\s+PL\s+/i, " ");
-  const map = {
-    "ph": "pH", "chlorine free": "Chlore libre", "chlorine total": "Chlore total",
-    "cyanuric acid": "Acide cyanurique", "alkalinity": "Alcalinit" + _e,
-    "monochloramine": "Monochloramine", "dichloramine": "Dichloramine",
-  };
-  const key = n.toLowerCase().trim();
-  return map[key] || n;
 }
 
 function plKey(id) { return "e_" + String(id).replace(/[^a-z0-9]/gi, "_"); }
@@ -133,12 +178,10 @@ class PoolLabCard extends HTMLElement {
     this.appendChild(card);
   }
 
-  _fmtDate(iso) {
-    if (!iso) return "";
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return "";
-    return d.getDate() + " " + PL_MONTHS[d.getMonth()];
-  }
+  _lang() { return plLangCode(this._hass, this._config); }
+  _t() { return PL_T[this._lang()] || PL_T.en; }
+  _sep() { return this._lang() === "en" ? "." : ","; }
+  _fmtDate(iso) { return plDate(iso, this._lang()); }
 
   _decimals(cfg, val) {
     if (cfg.decimals != null) return cfg.decimals;
@@ -148,9 +191,9 @@ class PoolLabCard extends HTMLElement {
     return 0;
   }
 
-  _num(v, dec) { return isFinite(v) ? v.toFixed(dec).replace(".", ",") : String(v); }
+  _num(v, dec) { return isFinite(v) ? v.toFixed(dec).replace(".", this._sep()) : String(v); }
 
-  _clean(v) { return isFinite(v) ? String(Math.round(v * 1000) / 1000).replace(".", ",") : String(v); }
+  _clean(v) { return isFinite(v) ? String(Math.round(v * 1000) / 1000).replace(".", this._sep()) : String(v); }
 
   _fetchHistory() {
     const ids = this._config.entities.map((e) => e.entity).filter(Boolean);
@@ -202,7 +245,8 @@ class PoolLabCard extends HTMLElement {
       return "<div class=\"pl-row pl-unavailable\"><div class=\"pl-name\"><ha-icon icon=\"mdi:help-circle-outline\"></ha-icon><div class=\"pl-pname\">" + (cfg.name || cfg.entity) + "</div></div><div class=\"pl-trend\"><span class=\"pl-cur\">" + String.fromCharCode(8212) + "</span></div><div class=\"pl-right\"></div></div>";
     }
     const a = st.attributes;
-    const name = cfg.name || plCleanName(st);
+    const t = this._t();
+    const name = cfg.name || plParamName(st, this._lang());
     const icon = cfg.icon || a.icon || "mdi:water-percent";
     const unit = cfg.unit != null ? cfg.unit : (a.unit_of_measurement || "");
     const val = parseFloat(st.state);
@@ -215,14 +259,14 @@ class PoolLabCard extends HTMLElement {
     const dec = this._decimals(cfg, isFinite(val) ? val : 0);
     let cls = "pl-neutral", pill = "", pillCls = "pl-pill-neutral", valTxt;
     if (over) {
-      cls = "pl-warn"; pill = "OVER"; pillCls = "pl-pill-warn";
+      cls = "pl-warn"; pill = t.over; pillCls = "pl-pill-warn";
       const tmax = cfg.test_max != null ? cfg.test_max : (plTestMax(a.parameter) != null ? plTestMax(a.parameter) : hi);
-      valTxt = tmax != null ? ("> " + tmax) : "OVER";
+      valTxt = tmax != null ? ("> " + tmax) : t.over;
     } else {
       valTxt = isFinite(val) ? this._num(val, dec) : st.state;
-      if (lo != null && val < lo) { cls = "pl-warn"; pill = "Trop bas"; pillCls = "pl-pill-warn"; }
-      else if (hi != null && val > hi) { cls = "pl-warn"; pill = "Trop haut"; pillCls = "pl-pill-warn"; }
-      else if (lo != null || hi != null) { cls = "pl-ok"; pill = "OK"; pillCls = "pl-pill-ok"; }
+      if (lo != null && val < lo) { cls = "pl-warn"; pill = t.low; pillCls = "pl-pill-warn"; }
+      else if (hi != null && val > hi) { cls = "pl-warn"; pill = t.high; pillCls = "pl-pill-warn"; }
+      else if (lo != null || hi != null) { cls = "pl-ok"; pill = t.ok; pillCls = "pl-pill-ok"; }
     }
 
     const hist = (this._hist && this._hist[cfg.entity]) || [];
@@ -249,9 +293,9 @@ class PoolLabCard extends HTMLElement {
 
     let targetHtml = "";
     if (this._config.show_target !== false) {
-      if (lo != null && hi != null) targetHtml = "cible " + this._clean(lo) + String.fromCharCode(8211) + this._clean(hi);
-      else if (hi != null) targetHtml = "max " + this._clean(hi);
-      else if (lo != null) targetHtml = "min " + this._clean(lo);
+      if (lo != null && hi != null) targetHtml = t.target + " " + this._clean(lo) + String.fromCharCode(8211) + this._clean(hi);
+      else if (hi != null) targetHtml = t.maxw + " " + this._clean(hi);
+      else if (lo != null) targetHtml = t.minw + " " + this._clean(lo);
     }
     const pillHtml = pill ? "<span class=\"pl-pill " + pillCls + "\">" + pill + "</span>" : "";
 
@@ -272,7 +316,7 @@ class PoolLabCard extends HTMLElement {
       .map((c) => { const st = this._state(c.entity); return st && st.attributes.measured_at; })
       .filter(Boolean).map((d) => new Date(d).getTime());
     if (this._config.show_date !== false && dates.length) {
-      sub.textContent = "dernier relev" + _e + " " + this._fmtDate(new Date(Math.max(...dates)).toISOString());
+      sub.textContent = this._t().last + " " + this._fmtDate(new Date(Math.max(...dates)).toISOString());
     } else sub.textContent = "";
 
     this.querySelector("#pl-rows").innerHTML = this._config.entities.map((c) => this._rowHtml(c)).join("");
@@ -309,6 +353,7 @@ class PoolLabCardEditor extends HTMLElement {
   _render() {
     if (!this._hass || !this._config) return;
     const c = this._config;
+    const t = PL_T[plLangCode(this._hass, c)] || PL_T.en;
     if (!this._form) {
       this.innerHTML = "";
       this._form = document.createElement("ha-form");
@@ -365,27 +410,27 @@ class PoolLabCardEditor extends HTMLElement {
     }
 
     const schema = [
-      { name: "title", label: "Titre", selector: { text: {} } },
-      { name: "measurements", label: "Mesures affich" + _e + "es", selector: { select: { mode: "dropdown", options: [
-        { value: "1", label: "Derni" + _eg + "re seulement" },
-        { value: "2", label: "2 derni" + _eg + "res" },
-        { value: "3", label: "3 derni" + _eg + "res" },
+      { name: "title", label: t.title, selector: { text: {} } },
+      { name: "measurements", label: t.meas, selector: { select: { mode: "dropdown", options: [
+        { value: "1", label: t.m1 },
+        { value: "2", label: t.m2 },
+        { value: "3", label: t.m3 },
       ] } } },
-      { name: "show_date", label: "Afficher les dates de mesure", selector: { boolean: {} } },
-      { name: "show_target", label: "Afficher la cible", selector: { boolean: {} } },
-      { name: "entities", label: "Capteurs PoolLab (glisser pour r" + _e + "organiser)", selector: { select: { multiple: true, reorder: true, options: this._sensorOptions() } } },
+      { name: "show_date", label: t.sdate, selector: { boolean: {} } },
+      { name: "show_target", label: t.starget, selector: { boolean: {} } },
+      { name: "entities", label: t.sensors, selector: { select: { multiple: true, reorder: true, options: this._sensorOptions() } } },
     ];
     for (const e of c.entities) {
       const st = this._hass.states[e.entity];
-      const title = e.name || (st ? plCleanName(st) : e.entity);
+      const title = e.name || (st ? plParamName(st, plLangCode(this._hass, c)) : e.entity);
       schema.push({
         type: "expandable", name: plKey(e.entity), title: title,
         schema: [
-          { name: "icon", label: "Ic" + _o + "ne", selector: { icon: {} } },
-          { name: "name", label: "Nom affich" + _e, selector: { text: {} } },
-          { name: "min", label: "Seuil bas (cible)", selector: { number: { mode: "box", step: "any" } } },
-          { name: "max", label: "Seuil haut (cible)", selector: { number: { mode: "box", step: "any" } } },
-          { name: "trend", label: "Afficher la tendance", selector: { boolean: {} } },
+          { name: "icon", label: t.icon, selector: { icon: {} } },
+          { name: "name", label: t.dname, selector: { text: {} } },
+          { name: "min", label: t.lo, selector: { number: { mode: "box", step: "any" } } },
+          { name: "max", label: t.hi, selector: { number: { mode: "box", step: "any" } } },
+          { name: "trend", label: t.trend, selector: { boolean: {} } },
         ],
       });
     }

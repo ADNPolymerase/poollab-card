@@ -11,6 +11,8 @@
 
 <a href="https://buymeacoffee.com/adnpolymerase" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60"></a>
 
+Multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese — auto-detected from Home Assistant).
+
 A clean Lovelace card for the [PoolLab](https://github.com/Production-Wright/poollab) water analysis integration.
 Shows your latest reading for each parameter, the previous measurements, and colors the current value
 against its ideal target — with proper handling of **OVER** readings (values above the test's measurable range).
@@ -93,6 +95,7 @@ entities:
 | Option | Default | Description |
 |---|---|---|
 | `title` | PoolLab | Card title |
+| `language` | _auto_ | UI language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`. Auto-detected from Home Assistant when omitted (English fallback) |
 | `measurements` | `3` | How many measurements to show per parameter: `1` (latest only), `2`, or `3` — previous ones shown with their date |
 | `entities` | — | List of PoolLab sensor entities (strings, or objects with overrides) — pick only the parameters you actually use |
 | `show_date` | `true` | Show each measurement's real date (`measured_at`) |
