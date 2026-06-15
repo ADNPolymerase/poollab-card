@@ -95,7 +95,8 @@ entities:
 | Option | Default | Description |
 |---|---|---|
 | `title` | PoolLab | Card title |
-| `language` | _auto_ | UI language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`. Auto-detected from Home Assistant when omitted (English fallback) |
+| `language` | _auto_ | UI language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`. Auto-detected from Home Assistant when omitted (English fallback). Also selectable in the editor |
+| `translations` | — | Add or override translations from YAML, keyed by language code (see below) |
 | `measurements` | `3` | How many measurements to show per parameter: `1` (latest only), `2`, or `3` — previous ones shown with their date |
 | `entities` | — | List of PoolLab sensor entities (strings, or objects with overrides) — pick only the parameters you actually use |
 | `show_date` | `true` | Show each measurement's real date (`measured_at`) |
@@ -113,11 +114,38 @@ The UI editor groups each chosen sensor into its own expandable section (icon, d
 
 - Target comes from the entity attributes `ideal_low` / `ideal_high` (what you set in the PoolLab app),
   unless you set `min` / `max` in the card config.
-- Value is green when within the range, orange when below (`Trop bas`) or above (`Trop haut`).
-- When the integration reports an OVER value (≥ `over_threshold`), the card shows `> max` where `max`
+- Value is green when within the range, orange when below or above it.
+- For pH, if the integration reports no configured target (`-1`), the card falls back to a sensible `7.2`–`7.6` range.
+- When the integration reports an OVER value, the card shows `> max` where `max`
   is the test's measurable ceiling (`test_max` override, else a built-in PoolLab lookup, else the target high).
 - The trend arrow compares the current reading to the previous one. When out of range, it's green if the
   value moved toward the target midpoint, orange if it moved away.
+
+## Languages
+
+The card is multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese) and follows your
+Home Assistant language automatically, with English as a fallback. Force a language with `language:` or pick
+one in the editor.
+
+You can add a new language or override any string from YAML — no PR needed — via `translations`, keyed by
+language code:
+
+```yaml
+type: custom:poollab-card
+language: sv
+translations:
+  sv:
+    last: senaste mätning
+    target: mål
+    high: För högt
+    low: För lågt
+    ok: OK
+    p:
+      "chlorine free": Fritt klor
+```
+
+Reviewed translation contributions are very welcome. Thanks to [@hmmbob](https://github.com/hmmbob) for the
+Dutch translation and the YAML `translations` override idea.
 
 ## License
 

@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.4.0";
+const CARD_VERSION = "0.4.1";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
@@ -50,10 +50,10 @@ const PL_T = {
     sdate: "Mostra le date di misura", starget: "Mostra l'obiettivo", sensors: "Sensori PoolLab (trascina per riordinare)",
     icon: "Icona", dname: "Nome visualizzato", lo: "Soglia bassa (obiettivo)", hi: "Soglia alta (obiettivo)", trend: "Mostra l'andamento",
     p: { "ph": "pH", "chlorine free": "Cloro libero", "chlorine total": "Cloro totale", "chlorine combined": "Cloro combinato", "cyanuric acid": "Acido cianurico", "alkalinity": "Alcalinità", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
-  nl: { last: "laatste meting", target: "streefwaarde", maxw: "max", minw: "min", high: "Te hoog", low: "Te laag", ok: "OK", over: "OVER",
-    title: "Titel", meas: "Getoonde metingen", m1: "Alleen laatste", m2: "Laatste 2", m3: "Laatste 3",
-    sdate: "Meetdatums tonen", starget: "Streefwaarde tonen", sensors: "PoolLab-sensoren (sleep om te herordenen)",
-    icon: "Pictogram", dname: "Weergavenaam", lo: "Ondergrens (streef)", hi: "Bovengrens (streef)", trend: "Trend tonen",
+  nl: { last: "laatste meting", target: "doel", maxw: "max", minw: "min", high: "Te hoog", low: "Te laag", ok: "OK", over: "OVER",
+    title: "Titel", meas: "Getoonde metingen", m1: "Alleen laatste", m2: "2 laatste", m3: "3 laatste",
+    sdate: "Meetdatums tonen", starget: "Doel tonen", sensors: "PoolLab-sensoren (sleep om te herordenen)",
+    icon: "Pictogram", dname: "Weergavenaam", lo: "Ondergrens (doel)", hi: "Bovengrens (doel)", trend: "Trend tonen",
     p: { "ph": "pH", "chlorine free": "Vrij chloor", "chlorine total": "Totaal chloor", "chlorine combined": "Gebonden chloor", "cyanuric acid": "Cyanuurzuur", "alkalinity": "Alkaliniteit", "bromine": "Broom", "monochloramine": "Monochlooramine", "dichloramine": "Dichlooramine" } },
   pt: { last: "última medição", target: "alvo", maxw: "máx", minw: "mín", high: "Demasiado alto", low: "Demasiado baixo", ok: "OK", over: "OVER",
     title: "Título", meas: "Medições mostradas", m1: "Apenas a última", m2: "Últimas 2", m3: "Últimas 3",
@@ -62,18 +62,38 @@ const PL_T = {
     p: { "ph": "pH", "chlorine free": "Cloro livre", "chlorine total": "Cloro total", "chlorine combined": "Cloro combinado", "cyanuric acid": "Ácido cianúrico", "alkalinity": "Alcalinidade", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
 };
 
+const PL_DEFAULT_TARGETS = { "ph": { min: 7.2, max: 7.6 } };
+const PL_LANGNAMES = { en: "English", fr: "Français", de: "Deutsch", es: "Español", it: "Italiano", nl: "Nederlands", pt: "Português" };
+const PL_LANGLABEL = { en: "Language", fr: "Langue", de: "Sprache", es: "Idioma", it: "Lingua", nl: "Taal", pt: "Idioma" };
+
+function plDefaultTarget(param) {
+  if (!param) return null;
+  const p = String(param).toLowerCase().replace(/^pl\s+/, "").trim();
+  if (p in PL_DEFAULT_TARGETS) return PL_DEFAULT_TARGETS[p];
+  for (const k in PL_DEFAULT_TARGETS) if (p.indexOf(k) !== -1) return PL_DEFAULT_TARGETS[k];
+  return null;
+}
+
 function plLangCode(hass, cfg) {
   let l = (cfg && cfg.language) || (hass && ((hass.locale && hass.locale.language) || hass.language)) || "en";
   l = String(l).toLowerCase().split("-")[0];
-  return PL_T[l] ? l : "en";
+  const ov = cfg && cfg.translations;
+  return (PL_T[l] || (ov && ov[l])) ? l : "en";
 }
 
-function plParamName(st, lang) {
+function plT(lang, cfg) {
+  const base = PL_T[lang] || PL_T.en;
+  const ov = cfg && cfg.translations && typeof cfg.translations === "object" ? cfg.translations[lang] : null;
+  if (!ov) return base;
+  return { ...base, ...ov, p: { ...(base.p || {}), ...(ov.p || {}) } };
+}
+
+function plParamName(st, t) {
   const a = st.attributes;
   let n = a.parameter ? String(a.parameter) : (a.friendly_name || "");
   n = n.replace(/^.*?\bPL\b\s*/i, "").trim();
   const key = n.toLowerCase();
-  const dict = (PL_T[lang] || PL_T.en).p;
+  const dict = (t && t.p) || PL_T.en.p;
   return dict[key] || PL_T.en.p[key] || n;
 }
 
@@ -179,7 +199,7 @@ class PoolLabCard extends HTMLElement {
   }
 
   _lang() { return plLangCode(this._hass, this._config); }
-  _t() { return PL_T[this._lang()] || PL_T.en; }
+  _t() { return plT(this._lang(), this._config); }
   _sep() { return this._lang() === "en" ? "." : ","; }
   _fmtDate(iso) { return plDate(iso, this._lang()); }
 
@@ -246,7 +266,7 @@ class PoolLabCard extends HTMLElement {
     }
     const a = st.attributes;
     const t = this._t();
-    const name = cfg.name || plParamName(st, this._lang());
+    const name = cfg.name || plParamName(st, t);
     const icon = cfg.icon || a.icon || "mdi:water-percent";
     const unit = cfg.unit != null ? cfg.unit : (a.unit_of_measurement || "");
     const val = parseFloat(st.state);
@@ -255,6 +275,10 @@ class PoolLabCard extends HTMLElement {
 
     let lo = cfg.min != null && cfg.min !== "" ? parseFloat(cfg.min) : (a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null);
     let hi = cfg.max != null && cfg.max !== "" ? parseFloat(cfg.max) : (a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null);
+    if (lo == null || hi == null) {
+      const dt = plDefaultTarget(a.parameter);
+      if (dt) { if (lo == null) lo = dt.min; if (hi == null) hi = dt.max; }
+    }
 
     const dec = this._decimals(cfg, isFinite(val) ? val : 0);
     let cls = "pl-neutral", pill = "", pillCls = "pl-pill-neutral", valTxt;
@@ -336,8 +360,10 @@ class PoolLabCardEditor extends HTMLElement {
   _def(id) {
     const st = this._hass.states[id];
     const a = st ? st.attributes : {};
-    const lo = a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null;
-    const hi = a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null;
+    let lo = a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null;
+    let hi = a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null;
+    const dt = plDefaultTarget(a.parameter);
+    if (dt) { if (lo == null) lo = dt.min; if (hi == null) hi = dt.max; }
     return { lo, hi, ic: a.icon || "mdi:water-percent" };
   }
 
@@ -353,7 +379,8 @@ class PoolLabCardEditor extends HTMLElement {
   _render() {
     if (!this._hass || !this._config) return;
     const c = this._config;
-    const t = PL_T[plLangCode(this._hass, c)] || PL_T.en;
+    const t = plT(plLangCode(this._hass, c), c);
+    const ll = PL_LANGLABEL[plLangCode(this._hass, c)] || "Language";
     if (!this._form) {
       this.innerHTML = "";
       this._form = document.createElement("ha-form");
@@ -383,7 +410,7 @@ class PoolLabCardEditor extends HTMLElement {
         let m = parseInt(v.measurements, 10); if (!(m >= 1 && m <= 3)) m = 3;
         this._config = {
           ...this._config,
-          title: v.title, measurements: m,
+          title: v.title, language: v.language || undefined, measurements: m,
           show_date: v.show_date !== false, show_target: v.show_target !== false,
           entities: ents,
         };
@@ -394,7 +421,7 @@ class PoolLabCardEditor extends HTMLElement {
     }
 
     const data = {
-      title: c.title, measurements: String(c.measurements || 3),
+      title: c.title, language: c.language || "", measurements: String(c.measurements || 3),
       show_date: c.show_date !== false, show_target: c.show_target !== false,
       entities: c.entities.map((e) => e.entity),
     };
@@ -411,6 +438,7 @@ class PoolLabCardEditor extends HTMLElement {
 
     const schema = [
       { name: "title", label: t.title, selector: { text: {} } },
+      { name: "language", label: ll, selector: { select: { mode: "dropdown", options: [{ value: "", label: "Auto" }].concat(Object.keys(PL_LANGNAMES).map((l) => ({ value: l, label: PL_LANGNAMES[l] }))) } } },
       { name: "measurements", label: t.meas, selector: { select: { mode: "dropdown", options: [
         { value: "1", label: t.m1 },
         { value: "2", label: t.m2 },
@@ -422,7 +450,7 @@ class PoolLabCardEditor extends HTMLElement {
     ];
     for (const e of c.entities) {
       const st = this._hass.states[e.entity];
-      const title = e.name || (st ? plParamName(st, plLangCode(this._hass, c)) : e.entity);
+      const title = e.name || (st ? plParamName(st, t) : e.entity);
       schema.push({
         type: "expandable", name: plKey(e.entity), title: title,
         schema: [
