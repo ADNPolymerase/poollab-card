@@ -41,6 +41,7 @@ and a status — the same targets you set in the PoolLab app. This card reads th
 - Current value colored by its target (green / orange), pill shows `OK` / `Trop haut` / `Trop bas` / `OVER`
 - Trend arrow comparing the current reading to the previous one (toward the range = green, away = orange)
 - Automatic target from the entity, overridable per parameter
+- **Threshold cache**: thresholds are persisted in `localStorage` — if a new measurement arrives without configured targets, the last known thresholds are reused automatically
 - OVER handling with a built-in table of PoolLab test ceilings (pH 8.4, chlorine 6, CYA 100, TA 200, …)
 - Native HA editor (entity picker) + full YAML control
 
@@ -108,14 +109,21 @@ OVER detection is fixed (the integration reports a very large value when a test 
 
 ### Editor
 
-The UI editor groups each chosen sensor into its own expandable section (icon, display name, thresholds, trend toggle). Reorder the sensor chips at the top to reorder the displayed rows. Thresholds are **pre-filled from the values you set in the PoolLab app** (`ideal_low` / `ideal_high`): leave them untouched to keep following the app automatically, or change them to set a card-specific override.
+The UI editor groups each chosen sensor into its own expandable section (icon, display name, thresholds, trend toggle). Reorder the sensor chips at the top to reorder the displayed rows. Threshold fields are **pre-filled from the values you set in the PoolLab app** (`ideal_low` / `ideal_high`), or from the browser cache when the latest measurement has no configured target. Leave them untouched to follow the app automatically, or change them to set a card-specific override (the override is also saved to the cache and reused on future measurements without targets).
 
 ## How targets & colors work
 
-- Target comes from the entity attributes `ideal_low` / `ideal_high` (what you set in the PoolLab app),
-  unless you set `min` / `max` in the card config.
+Threshold resolution priority (highest to lowest):
+
+1. **Measurement attributes** (`ideal_low` / `ideal_high` from the PoolLab app) — used automatically, written to the browser cache.
+2. **Card config** (`min` / `max` set in the editor or YAML) — used and written to the browser cache.
+3. **Browser cache** (`localStorage`) — the last known thresholds, reused when a new measurement has none.
+4. **Built-in defaults** (`PL_DEFAULT_TARGETS`) — e.g. pH 7.2–7.6.
+
+This means you only need to fetch thresholds from the PoolLab cloud once: after that, they are remembered locally and reused for all subsequent measurements, even if the app returns no target.
+
+Other rules:
 - Value is green when within the range, orange when below or above it.
-- For pH, if the integration reports no configured target (`-1`), the card falls back to a sensible `7.2`–`7.6` range.
 - When the integration reports an OVER value, the card shows `> max` where `max`
   is the test's measurable ceiling (`test_max` override, else a built-in PoolLab lookup, else the target high).
 - The trend arrow compares the current reading to the previous one. When out of range, it's green if the
@@ -180,6 +188,7 @@ seuils que ceux réglés dans l'application PoolLab. La carte les lit automatiqu
 - Nombre de mesures affichées réglable (1 à 3), chacune avec sa date
 - Flèche de tendance par paramètre (vers la cible = vert, en s'éloignant = orange)
 - **Seuils pré-remplis depuis l'app PoolLab**, modifiables par paramètre dans l'éditeur
+- **Cache des seuils** en `localStorage` : si une nouvelle mesure arrive sans seuils configurés, les derniers seuils connus sont réutilisés automatiquement — pas besoin de refaire une synchro avec l'app
 - **Réorganisation des lignes** par glisser-déposer + **choix d'icône** par paramètre
 - Éditeur visuel complet — aucun YAML requis
 
