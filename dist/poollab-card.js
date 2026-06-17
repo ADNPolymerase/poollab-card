@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.4.1";
+const CARD_VERSION = "0.4.2";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
@@ -114,6 +114,14 @@ function plTestMax(param) {
 }
 
 function plKey(id) { return "e_" + String(id).replace(/[^a-z0-9]/gi, "_"); }
+
+const _thCache = (() => {
+  const K = id => `poollab_th::${id}`;
+  return {
+    get: id => { try { const v = localStorage.getItem(K(id)); return v ? JSON.parse(v) : null; } catch { return null; } },
+    set: (id, lo, hi) => { try { localStorage.setItem(K(id), JSON.stringify({ lo, hi })); } catch {} },
+  };
+})();
 
 class PoolLabCard extends HTMLElement {
   static getConfigElement() { return document.createElement("poollab-card-editor"); }
@@ -273,8 +281,24 @@ class PoolLabCard extends HTMLElement {
     const over = isFinite(val) && val >= OVER_THRESHOLD;
     const N = this._config.measurements || 3;
 
-    let lo = cfg.min != null && cfg.min !== "" ? parseFloat(cfg.min) : (a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null);
-    let hi = cfg.max != null && cfg.max !== "" ? parseFloat(cfg.max) : (a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null);
+    // 1. Measurement thresholds (highest priority) → write to cache
+    let lo = a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null;
+    let hi = a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null;
+    if (lo != null || hi != null) {
+      _thCache.set(cfg.entity, lo, hi);
+    } else {
+      // 2. User config thresholds → write to cache
+      if (cfg.min != null && cfg.min !== "") lo = parseFloat(cfg.min);
+      if (cfg.max != null && cfg.max !== "") hi = parseFloat(cfg.max);
+      if (lo != null || hi != null) {
+        _thCache.set(cfg.entity, lo, hi);
+      } else {
+        // 3. Cache fallback (read only)
+        const cached = _thCache.get(cfg.entity);
+        if (cached) { lo = cached.lo; hi = cached.hi; }
+      }
+    }
+    // 4. Built-in defaults (read only, never cached)
     if (lo == null || hi == null) {
       const dt = plDefaultTarget(a.parameter);
       if (dt) { if (lo == null) lo = dt.min; if (hi == null) hi = dt.max; }
@@ -362,6 +386,10 @@ class PoolLabCardEditor extends HTMLElement {
     const a = st ? st.attributes : {};
     let lo = a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null;
     let hi = a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null;
+    if (lo == null && hi == null) {
+      const cached = _thCache.get(id);
+      if (cached) { lo = cached.lo; hi = cached.hi; }
+    }
     const dt = plDefaultTarget(a.parameter);
     if (dt) { if (lo == null) lo = dt.min; if (hi == null) hi = dt.max; }
     return { lo, hi, ic: a.icon || "mdi:water-percent" };
