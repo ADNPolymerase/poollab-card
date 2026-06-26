@@ -1,6 +1,6 @@
 {
   "name": "PoolLab Card",
   "render_readme": true,
-  "filename": "dist/poollab-card.js",
+  "filename": "poollab-card.js",
   "homeassistant": "2024.1.0"
 }
