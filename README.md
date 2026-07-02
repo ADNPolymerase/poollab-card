@@ -20,7 +20,7 @@ against its ideal target — with proper handling of **OVER** readings (values a
 
 > Not affiliated with PoolLab® / Water-i.d. — independent community card.
 
-> 🇫🇷 Carte Lovelace pour l'intégration PoolLab — voir la section française plus bas.
+> 🇫🇷 [Lire en français](README.fr.md)
 
 ![PoolLab Card](docs/screenshot.png)
 
@@ -159,52 +159,3 @@ Dutch translation and the YAML `translations` override idea.
 ## License
 
 [MIT](LICENSE)
-
----
-
-# 🇫🇷 PoolLab Card
-
-[![Mes autres projets](https://img.shields.io/badge/Mes%20autres%20projets-adnpolymerase.github.io-8a2be2.svg)](https://adnpolymerase.github.io/HA/)
-
-Carte Lovelace pour l'intégration [PoolLab](https://github.com/dala318/python_poollab) (photomètres PoolLab 1.0 / 2.0).
-Elle affiche proprement vos analyses d'eau : pour chaque paramètre, la valeur actuelle **colorée selon votre cible**,
-les mesures précédentes datées, et une gestion correcte des mesures **OVER** (au-delà de la plage du test).
-
-![Carte PoolLab](docs/screenshot.png)
-
-## Pourquoi cette carte
-
-L'intégration PoolLab expose déjà, pour chaque paramètre, la plage idéale (`ideal_low` / `ideal_high`) — les mêmes
-seuils que ceux réglés dans l'application PoolLab. La carte les lit automatiquement :
-
-- La valeur est **verte** (dans la plage) ou **orange** (hors plage), sans aucun seuil à configurer.
-- Vous pouvez quand même **surcharger** la cible par paramètre si besoin.
-- Elle affiche les **2 mesures précédentes datées** avec une **flèche de tendance**, pour voir si vous corrigez
-  dans le bon sens (ex : acide cyanurique `80 → 79 → 70`, en baisse vers la plage).
-- Elle gère les mesures **OVER** (le boîtier renvoie une valeur énorme quand un test dépasse sa plage mesurable)
-  et affiche `> seuil` au lieu d'une valeur aberrante.
-
-## Fonctionnalités
-
-- Une ligne par paramètre : nom, date réelle de mesure, valeurs précédentes, valeur actuelle, cible, pastille d'état
-- Valeur colorée selon sa cible (vert / orange), pastille `OK` / `Trop haut` / `Trop bas` / `OVER`
-- Nombre de mesures affichées réglable (1 à 3), chacune avec sa date
-- Flèche de tendance par paramètre (vers la cible = vert, en s'éloignant = orange)
-- **Seuils pré-remplis depuis l'app PoolLab**, modifiables par paramètre dans l'éditeur
-- **Cache des seuils** en `localStorage` : si une nouvelle mesure arrive sans seuils configurés, les derniers seuils connus sont réutilisés automatiquement — pas besoin de refaire une synchro avec l'app
-- **Réorganisation des lignes** par glisser-déposer + **choix d'icône** par paramètre
-- Éditeur visuel complet — aucun YAML requis
-
-## Installation (HACS)
-
-1. **HACS → ⋮ → Dépôts personnalisés**
-2. Ajouter `https://github.com/ADNPolymerase/poollab-card` en catégorie **Dashboard**
-3. Rechercher **PoolLab Card** et télécharger
-4. Recharger le navigateur (Ctrl+Maj+R / Cmd+Maj+R)
-
-Les capteurs `sensor.*_pl_*` sont détectés automatiquement. Choisissez vos paramètres dans l'éditeur (vous ne mettez
-que ceux que vous utilisez) ; chaque capteur a sa propre section pour régler icône, nom et seuils.
-
-## Licence
-
-MIT
