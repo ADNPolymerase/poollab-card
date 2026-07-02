@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.5.0";
+const CARD_VERSION = "0.5.1";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
@@ -267,9 +267,10 @@ class PoolLabCard extends HTMLElement {
           const s = states[i];
           const a = s.a || {};
           const v = parseFloat(s.s);
-          if (!isFinite(v) || v >= OVER_THRESHOLD || a.measure == null) continue;
-          if (seen.has(a.measure)) continue;
-          seen.add(a.measure);
+          if (!isFinite(v) || v >= OVER_THRESHOLD) continue;
+          const _dedup = a.measure ?? a.measured_at;
+          if (_dedup != null && seen.has(_dedup)) continue;
+          if (_dedup != null) seen.add(_dedup);
           list.push({ value: v, measured_at: a.measured_at });
           if (list.length >= 4) break;
         }
