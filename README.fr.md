@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/logo.png" alt="PoolLab Card" height="130"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/logo.png" alt="PoolLab Card" height="130"></p>
 
 # PoolLab Card
 
@@ -6,7 +6,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/poollab-card?sort=semver)](https://github.com/ADNPolymerase/poollab-card/releases)
 [![HACS Action](https://github.com/ADNPolymerase/poollab-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/poollab-card/actions/workflows/hacs.yml)
 [![HA Version](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ADNPolymerase/poollab-card/blob/main/LICENSE)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg?logo=buy-me-a-coffee)](https://buymeacoffee.com/adnpolymerase)
 
 <a href="https://buymeacoffee.com/adnpolymerase" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60"></a>
@@ -22,7 +22,7 @@ les mesures précédentes datées, et une gestion correcte des mesures **OVER** 
 
 > 🇬🇧 [Read in English](README.md)
 
-![Carte PoolLab](docs/screenshot.png)
+![Carte PoolLab](https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/screenshot.png)
 
 ## Pourquoi cette carte
 
@@ -157,4 +157,4 @@ traduction néerlandaise et l'idée de surcharge YAML `translations`.
 
 ## Licence
 
-[MIT](LICENSE)
+[MIT](https://github.com/ADNPolymerase/poollab-card/blob/main/LICENSE)
