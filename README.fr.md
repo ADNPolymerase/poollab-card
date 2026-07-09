@@ -12,7 +12,7 @@
 <a href="https://buymeacoffee.com/adnpolymerase" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60"></a>
 <a href="https://adnpolymerase.github.io/HA/" target="_blank"><img src="https://raw.githubusercontent.com/ADNPolymerase/HA/main/assets/site-button.svg" alt="Link to my github.io for my other projects" height="60"></a>
 
-Multilingue (anglais, français, allemand, espagnol, italien, néerlandais, portugais — détecté automatiquement depuis Home Assistant).
+Multilingue (anglais, français, allemand, espagnol, italien, néerlandais, portugais, russe — détecté automatiquement depuis Home Assistant).
 
 Carte Lovelace pour l'intégration [PoolLab](https://github.com/dala318/python_poollab) (photomètres PoolLab 1.0 / 2.0).
 Elle affiche proprement vos analyses d'eau : pour chaque paramètre, la valeur actuelle **colorée selon votre cible**,
@@ -97,7 +97,7 @@ entities:
 | Option | Défaut | Description |
 |---|---|---|
 | `title` | PoolLab | Titre de la carte |
-| `language` | _auto_ | Langue de l'interface : `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`. Détectée automatiquement depuis Home Assistant si omise (repli anglais). Sélectionnable aussi dans l'éditeur |
+| `language` | _auto_ | Langue de l'interface : `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `ru`. Détectée automatiquement depuis Home Assistant si omise (repli anglais). Sélectionnable aussi dans l'éditeur |
 | `translations` | — | Ajouter ou surcharger des traductions depuis YAML, indexées par code langue (voir ci-dessous) |
 | `measurements` | `3` | Nombre de mesures affichées par paramètre : `1` (dernière uniquement), `2`, ou `3` — les précédentes sont affichées avec leur date |
 | `entities` | — | Liste des entités capteur PoolLab (chaînes, ou objets avec surcharges) — ne mettre que les paramètres réellement utilisés |
@@ -132,7 +132,7 @@ Autres règles :
 
 ## Langues
 
-La carte est multilingue (anglais, français, allemand, espagnol, italien, néerlandais, portugais) et suit
+La carte est multilingue (anglais, français, allemand, espagnol, italien, néerlandais, portugais, russe) et suit
 automatiquement la langue de Home Assistant, avec l'anglais en repli. Forcer une langue avec `language:` ou en
 choisir une dans l'éditeur.
 

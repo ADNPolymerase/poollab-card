@@ -12,7 +12,7 @@
 <a href="https://buymeacoffee.com/adnpolymerase" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60"></a>
 <a href="https://adnpolymerase.github.io/HA/" target="_blank"><img src="https://raw.githubusercontent.com/ADNPolymerase/HA/main/assets/site-button.svg" alt="Link to my github.io for my other projects" height="60"></a>
 
-Multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese — auto-detected from Home Assistant).
+Multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese, Russian — auto-detected from Home Assistant).
 
 A clean Lovelace card for the [PoolLab](https://github.com/Production-Wright/poollab) water analysis integration.
 Shows your latest reading for each parameter, the previous measurements, and colors the current value
@@ -97,7 +97,7 @@ entities:
 | Option | Default | Description |
 |---|---|---|
 | `title` | PoolLab | Card title |
-| `language` | _auto_ | UI language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`. Auto-detected from Home Assistant when omitted (English fallback). Also selectable in the editor |
+| `language` | _auto_ | UI language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `ru`. Auto-detected from Home Assistant when omitted (English fallback). Also selectable in the editor |
 | `translations` | — | Add or override translations from YAML, keyed by language code (see below) |
 | `measurements` | `3` | How many measurements to show per parameter: `1` (latest only), `2`, or `3` — previous ones shown with their date |
 | `entities` | — | List of PoolLab sensor entities (strings, or objects with overrides) — pick only the parameters you actually use |
@@ -132,7 +132,7 @@ Other rules:
 
 ## Languages
 
-The card is multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese) and follows your
+The card is multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese, Russian) and follows your
 Home Assistant language automatically, with English as a fallback. Force a language with `language:` or pick
 one in the editor.
 
