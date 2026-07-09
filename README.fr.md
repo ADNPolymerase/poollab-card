@@ -22,7 +22,7 @@ les mesures précédentes datées, et une gestion correcte des mesures **OVER** 
 
 > 🇬🇧 [Read in English](README.md)
 
-![Carte PoolLab](https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/screenshot.png)
+![Carte PoolLab](https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/screenshot.fr.png)
 
 ## Fonctionnalités
 
