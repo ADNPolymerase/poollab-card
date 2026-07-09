@@ -24,27 +24,13 @@ against its ideal target — with proper handling of **OVER** readings (values a
 
 ![PoolLab Card](https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/screenshot.png)
 
-## Why this card
-
-The PoolLab integration already exposes, for each parameter, the ideal range (`ideal_low` / `ideal_high`)
-and a status — the same targets you set in the PoolLab app. This card reads them automatically, so:
-
-- The current value is colored green (in range) or orange (out of range) with **no threshold config needed**.
-- It still lets you **override** the target per parameter if you want.
-- It shows the **two previous measurements** with a trend arrow, so you can see whether you're correcting
-  in the right direction (e.g. cyanuric acid `80 → 79 → 70` trending down toward range).
-- It detects **OVER** readings (the integration reports a huge value when a test is above its measurable
-  ceiling) and displays `> max` instead of a meaningless number.
-
 ## Features
 
-- One row per parameter: name, real measurement date, previous values, current value, target, status pill
-- Current value colored by its target (green / orange), pill shows `OK` / `Trop haut` / `Trop bas` / `OVER`
-- Trend arrow comparing the current reading to the previous one (toward the range = green, away = orange)
-- Automatic target from the entity, overridable per parameter
-- **Threshold cache**: thresholds are persisted in `localStorage` — if a new measurement arrives without configured targets, the last known thresholds are reused automatically
-- OVER handling with a built-in table of PoolLab test ceilings (pH 8.4, chlorine 6, CYA 100, TA 200, …)
-- Native HA editor (entity picker) + full YAML control
+- One row per parameter: name, real measurement date, the two previous values, current value, target, status pill (`OK` / `Too high` / `Too low` / `OVER`).
+- **Automatic targets**: the ideal range you set in the PoolLab app (`ideal_low` / `ideal_high`) is read from the entity — no threshold config needed, overridable per parameter, cached in `localStorage` for measurements without targets.
+- **Trend arrow** comparing the current reading to the previous one (toward the range = green, away = orange).
+- **OVER handling**: when a test exceeds its measurable ceiling, the card shows `> max` (built-in table of PoolLab ceilings: pH 8.4, chlorine 6, CYA 100, TA 200…) instead of a meaningless number.
+- Native HA editor (entity picker) + full YAML control.
 
 ## Installation (HACS)
 
@@ -52,12 +38,7 @@ and a status — the same targets you set in the PoolLab app. This card reads th
 2. Add `https://github.com/ADNPolymerase/poollab-card` with category **Dashboard**
 3. Install **PoolLab Card**, then hard-refresh your browser (Ctrl+Shift+R / Cmd+Shift+R)
 
-## Manual installation
-
-1. Download `poollab-card.js` from the [latest release](https://github.com/ADNPolymerase/poollab-card/releases)
-2. Copy it to `/config/www/`
-3. Add the resource: Settings → Dashboards → three dots → Resources → Add
-   `/local/poollab-card.js` as a **JavaScript Module**
+Manual alternative: copy `poollab-card.js` from the [latest release](https://github.com/ADNPolymerase/poollab-card/releases) to `config/www/`, then add `/local/poollab-card.js` as a JavaScript-module resource.
 
 ## Usage
 
@@ -110,34 +91,15 @@ OVER detection is fixed (the integration reports a very large value when a test 
 
 ### Editor
 
-The UI editor groups each chosen sensor into its own expandable section (icon, display name, thresholds, trend toggle). Reorder the sensor chips at the top to reorder the displayed rows. Threshold fields are **pre-filled from the values you set in the PoolLab app** (`ideal_low` / `ideal_high`), or from the browser cache when the latest measurement has no configured target. Leave them untouched to follow the app automatically, or change them to set a card-specific override (the override is also saved to the cache and reused on future measurements without targets).
+Each chosen sensor gets its own expandable section (icon, display name, thresholds, trend toggle); reorder the chips at the top to reorder the rows. Threshold fields are pre-filled from the PoolLab app values (or the browser cache) — leave them untouched to follow the app, or change them to set a card-specific override.
 
-## How targets & colors work
+## How targets work
 
-Threshold resolution priority (highest to lowest):
-
-1. **Measurement attributes** (`ideal_low` / `ideal_high` from the PoolLab app) — used automatically, written to the browser cache.
-2. **Card config** (`min` / `max` set in the editor or YAML) — used and written to the browser cache.
-3. **Browser cache** (`localStorage`) — the last known thresholds, reused when a new measurement has none.
-4. **Built-in defaults** (`PL_DEFAULT_TARGETS`) — e.g. pH 7.2–7.6.
-
-This means you only need to fetch thresholds from the PoolLab cloud once: after that, they are remembered locally and reused for all subsequent measurements, even if the app returns no target.
-
-Other rules:
-- Value is green when within the range, orange when below or above it.
-- When the integration reports an OVER value, the card shows `> max` where `max`
-  is the test's measurable ceiling (`test_max` override, else a built-in PoolLab lookup, else the target high).
-- The trend arrow compares the current reading to the previous one. When out of range, it's green if the
-  value moved toward the target midpoint, orange if it moved away.
+Threshold priority: measurement attributes from the PoolLab app → card config (`min`/`max`) → browser cache (`localStorage`) → built-in defaults. Thresholds only need to come from the PoolLab cloud once — they're then remembered locally and reused for measurements without targets.
 
 ## Languages
 
-The card is multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese, Russian) and follows your
-Home Assistant language automatically, with English as a fallback. Force a language with `language:` or pick
-one in the editor.
-
-You can add a new language or override any string from YAML — no PR needed — via `translations`, keyed by
-language code:
+8 languages (EN, FR, DE, ES, IT, NL, PT, RU), auto-detected from Home Assistant with English fallback; force with `language:` or in the editor. Add a language or override any string from YAML — no PR needed — via `translations`, keyed by language code:
 
 ```yaml
 type: custom:poollab-card

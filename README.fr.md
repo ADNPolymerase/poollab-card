@@ -24,27 +24,13 @@ les mesures précédentes datées, et une gestion correcte des mesures **OVER** 
 
 ![Carte PoolLab](https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/screenshot.png)
 
-## Pourquoi cette carte
-
-L'intégration PoolLab expose déjà, pour chaque paramètre, la plage idéale (`ideal_low` / `ideal_high`) — les mêmes
-seuils que ceux réglés dans l'application PoolLab. La carte les lit automatiquement :
-
-- La valeur est **verte** (dans la plage) ou **orange** (hors plage), sans aucun seuil à configurer.
-- Vous pouvez quand même **surcharger** la cible par paramètre si besoin.
-- Elle affiche les **2 mesures précédentes datées** avec une **flèche de tendance**, pour voir si vous corrigez
-  dans le bon sens (ex : acide cyanurique `80 → 79 → 70`, en baisse vers la plage).
-- Elle gère les mesures **OVER** (le boîtier renvoie une valeur énorme quand un test dépasse sa plage mesurable)
-  et affiche `> seuil` au lieu d'une valeur aberrante.
-
 ## Fonctionnalités
 
-- Une ligne par paramètre : nom, date réelle de mesure, valeurs précédentes, valeur actuelle, cible, pastille d'état
-- Valeur colorée selon sa cible (vert / orange), pastille `OK` / `Trop haut` / `Trop bas` / `OVER`
-- Flèche de tendance comparant la mesure actuelle à la précédente (vers la cible = vert, en s'éloignant = orange)
-- Cible automatique depuis l'entité, surchargeable par paramètre
-- **Cache des seuils** : les seuils sont conservés dans `localStorage` — si une nouvelle mesure arrive sans cible configurée, les derniers seuils connus sont réutilisés automatiquement
-- Gestion des mesures OVER avec une table intégrée des plages maximales PoolLab (pH 8.4, chlore 6, CYA 100, TA 200, …)
-- Éditeur natif HA (sélecteur d'entités) + contrôle YAML complet
+- Une ligne par paramètre : nom, date réelle de mesure, les 2 valeurs précédentes, valeur actuelle, cible, pastille d'état (`OK` / `Trop haut` / `Trop bas` / `OVER`).
+- **Cibles automatiques** : la plage idéale réglée dans l'app PoolLab (`ideal_low` / `ideal_high`) est lue depuis l'entité — aucun seuil à configurer, surchargeable par paramètre, conservée dans `localStorage` pour les mesures sans cible.
+- **Flèche de tendance** comparant la mesure actuelle à la précédente (vers la cible = vert, en s'éloignant = orange).
+- **Gestion OVER** : quand un test dépasse sa plage mesurable, la carte affiche `> max` (table intégrée des plafonds PoolLab : pH 8.4, chlore 6, CYA 100, TA 200…) au lieu d'une valeur aberrante.
+- Éditeur natif HA (sélecteur d'entités) + contrôle YAML complet.
 
 ## Installation (HACS)
 
@@ -52,12 +38,7 @@ seuils que ceux réglés dans l'application PoolLab. La carte les lit automatiqu
 2. Ajouter `https://github.com/ADNPolymerase/poollab-card` en catégorie **Dashboard**
 3. Installer **PoolLab Card**, puis recharger le navigateur en vidant le cache (Ctrl+Maj+R / Cmd+Maj+R)
 
-## Installation manuelle
-
-1. Télécharger `poollab-card.js` depuis la [dernière version](https://github.com/ADNPolymerase/poollab-card/releases)
-2. Le copier dans `/config/www/`
-3. Ajouter la ressource : Paramètres → Tableaux de bord → ⋮ → Ressources → Ajouter
-   `/local/poollab-card.js` en tant que **module JavaScript**
+Alternative manuelle : copiez `poollab-card.js` depuis la [dernière version](https://github.com/ADNPolymerase/poollab-card/releases) vers `config/www/`, puis ajoutez `/local/poollab-card.js` comme ressource module JavaScript.
 
 ## Utilisation
 
@@ -110,33 +91,15 @@ La détection OVER est fixe (l'intégration renvoie une valeur très élevée qu
 
 ### Éditeur
 
-L'éditeur visuel regroupe chaque capteur choisi dans sa propre section repliable (icône, nom affiché, seuils, bascule de tendance). Réorganiser les puces de capteurs en haut pour réordonner les lignes affichées. Les champs de seuils sont **pré-remplis avec les valeurs réglées dans l'app PoolLab** (`ideal_low` / `ideal_high`), ou depuis le cache du navigateur si la dernière mesure n'a pas de cible configurée. Les laisser tels quels pour suivre l'app automatiquement, ou les modifier pour définir une surcharge spécifique à la carte (la surcharge est aussi enregistrée dans le cache et réutilisée pour les futures mesures sans cible).
+Chaque capteur choisi a sa propre section repliable (icône, nom affiché, seuils, bascule de tendance) ; réorganisez les puces en haut pour réordonner les lignes. Les champs de seuils sont pré-remplis depuis les valeurs de l'app PoolLab (ou le cache du navigateur) — laissez-les tels quels pour suivre l'app, ou modifiez-les pour une surcharge spécifique à la carte.
 
-## Fonctionnement des cibles et des couleurs
+## Fonctionnement des cibles
 
-Ordre de priorité pour la résolution des seuils (du plus prioritaire au moins prioritaire) :
-
-1. **Attributs de la mesure** (`ideal_low` / `ideal_high` depuis l'app PoolLab) — utilisés automatiquement, écrits dans le cache du navigateur.
-2. **Config de la carte** (`min` / `max` réglés dans l'éditeur ou en YAML) — utilisés et écrits dans le cache du navigateur.
-3. **Cache du navigateur** (`localStorage`) — les derniers seuils connus, réutilisés quand une nouvelle mesure n'en a pas.
-4. **Valeurs par défaut intégrées** (`PL_DEFAULT_TARGETS`) — ex : pH 7.2–7.6.
-
-Cela signifie que vous n'avez besoin de récupérer les seuils depuis le cloud PoolLab qu'une seule fois : ensuite, ils sont mémorisés localement et réutilisés pour toutes les mesures suivantes, même si l'app ne renvoie aucune cible.
-
-Autres règles :
-- La valeur est verte quand elle est dans la plage, orange en dessous ou au-dessus.
-- Quand l'intégration renvoie une valeur OVER, la carte affiche `> max` où `max`
-  est la plage maximale mesurable du test (surcharge `test_max`, sinon une table PoolLab intégrée, sinon la cible haute).
-- La flèche de tendance compare la mesure actuelle à la précédente. Hors plage, elle est verte si la
-  valeur s'est rapprochée du milieu de la cible, orange si elle s'en est éloignée.
+Priorité des seuils : attributs de la mesure (app PoolLab) → config de la carte (`min`/`max`) → cache du navigateur (`localStorage`) → valeurs par défaut intégrées. Les seuils n'ont besoin de venir du cloud PoolLab qu'une seule fois — ils sont ensuite mémorisés localement et réutilisés pour les mesures sans cible.
 
 ## Langues
 
-La carte est multilingue (anglais, français, allemand, espagnol, italien, néerlandais, portugais, russe) et suit
-automatiquement la langue de Home Assistant, avec l'anglais en repli. Forcer une langue avec `language:` ou en
-choisir une dans l'éditeur.
-
-Vous pouvez ajouter une nouvelle langue ou surcharger n'importe quelle chaîne depuis YAML — sans PR nécessaire — via `translations`, indexé par code langue :
+8 langues (EN, FR, DE, ES, IT, NL, PT, RU), détectées automatiquement depuis Home Assistant avec repli anglais ; forcez avec `language:` ou dans l'éditeur. Ajoutez une langue ou surchargez n'importe quelle chaîne depuis YAML — sans PR — via `translations`, indexé par code langue :
 
 ```yaml
 type: custom:poollab-card
