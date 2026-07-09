@@ -12,7 +12,7 @@
 <a href="https://buymeacoffee.com/adnpolymerase" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60"></a>
 <a href="https://adnpolymerase.github.io/HA/" target="_blank"><img src="https://raw.githubusercontent.com/ADNPolymerase/HA/main/assets/site-button.svg" alt="Link to my github.io for my other projects" height="60"></a>
 
-Multilingue (anglais, français, allemand, espagnol, italien, néerlandais, portugais, russe — détecté automatiquement depuis Home Assistant).
+Multilingue (12 langues : FR, EN, DE, ES, IT, NL, PT, SV, NO, DA, PL, RU — détecté automatiquement depuis Home Assistant).
 
 Carte Lovelace pour l'intégration [PoolLab](https://github.com/dala318/python_poollab) (photomètres PoolLab 1.0 / 2.0).
 Elle affiche proprement vos analyses d'eau : pour chaque paramètre, la valeur actuelle **colorée selon votre cible**,
@@ -78,7 +78,7 @@ entities:
 | Option | Défaut | Description |
 |---|---|---|
 | `title` | PoolLab | Titre de la carte |
-| `language` | _auto_ | Langue de l'interface : `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `ru`. Détectée automatiquement depuis Home Assistant si omise (repli anglais). Sélectionnable aussi dans l'éditeur |
+| `language` | _auto_ | Langue de l'interface : `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `sv`, `no`, `da`, `pl`, `ru`. Détectée automatiquement depuis Home Assistant si omise (repli anglais). Sélectionnable aussi dans l'éditeur |
 | `translations` | — | Ajouter ou surcharger des traductions depuis YAML, indexées par code langue (voir ci-dessous) |
 | `measurements` | `3` | Nombre de mesures affichées par paramètre : `1` (dernière uniquement), `2`, ou `3` — les précédentes sont affichées avec leur date |
 | `entities` | — | Liste des entités capteur PoolLab (chaînes, ou objets avec surcharges) — ne mettre que les paramètres réellement utilisés |
@@ -99,7 +99,7 @@ Priorité des seuils : attributs de la mesure (app PoolLab) → config de la car
 
 ## Langues
 
-8 langues (EN, FR, DE, ES, IT, NL, PT, RU), détectées automatiquement depuis Home Assistant avec repli anglais ; forcez avec `language:` ou dans l'éditeur. Ajoutez une langue ou surchargez n'importe quelle chaîne depuis YAML — sans PR — via `translations`, indexé par code langue :
+12 langues (EN, FR, DE, ES, IT, NL, PT, SV, NO, DA, PL, RU), détectées automatiquement depuis Home Assistant avec repli anglais ; forcez avec `language:` ou dans l'éditeur. Ajoutez une langue ou surchargez n'importe quelle chaîne depuis YAML — sans PR — via `translations`, indexé par code langue :
 
 ```yaml
 type: custom:poollab-card

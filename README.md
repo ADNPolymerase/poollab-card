@@ -12,7 +12,7 @@
 <a href="https://buymeacoffee.com/adnpolymerase" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60"></a>
 <a href="https://adnpolymerase.github.io/HA/" target="_blank"><img src="https://raw.githubusercontent.com/ADNPolymerase/HA/main/assets/site-button.svg" alt="Link to my github.io for my other projects" height="60"></a>
 
-Multilingual (English, French, German, Spanish, Italian, Dutch, Portuguese, Russian — auto-detected from Home Assistant).
+Multilingual (12 languages: EN, FR, DE, ES, IT, NL, PT, SV, NO, DA, PL, RU — auto-detected from Home Assistant).
 
 A clean Lovelace card for the [PoolLab](https://github.com/Production-Wright/poollab) water analysis integration.
 Shows your latest reading for each parameter, the previous measurements, and colors the current value
@@ -78,7 +78,7 @@ entities:
 | Option | Default | Description |
 |---|---|---|
 | `title` | PoolLab | Card title |
-| `language` | _auto_ | UI language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `ru`. Auto-detected from Home Assistant when omitted (English fallback). Also selectable in the editor |
+| `language` | _auto_ | UI language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `sv`, `no`, `da`, `pl`, `ru`. Auto-detected from Home Assistant when omitted (English fallback). Also selectable in the editor |
 | `translations` | — | Add or override translations from YAML, keyed by language code (see below) |
 | `measurements` | `3` | How many measurements to show per parameter: `1` (latest only), `2`, or `3` — previous ones shown with their date |
 | `entities` | — | List of PoolLab sensor entities (strings, or objects with overrides) — pick only the parameters you actually use |
@@ -99,7 +99,7 @@ Threshold priority: measurement attributes from the PoolLab app → card config 
 
 ## Languages
 
-8 languages (EN, FR, DE, ES, IT, NL, PT, RU), auto-detected from Home Assistant with English fallback; force with `language:` or in the editor. Add a language or override any string from YAML — no PR needed — via `translations`, keyed by language code:
+12 languages (EN, FR, DE, ES, IT, NL, PT, SV, NO, DA, PL, RU), auto-detected from Home Assistant with English fallback; force with `language:` or in the editor. Add a language or override any string from YAML — no PR needed — via `translations`, keyed by language code:
 
 ```yaml
 type: custom:poollab-card
