@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.5.1";
+const CARD_VERSION = "0.6.0-beta.1";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
@@ -28,62 +28,62 @@ const PL_T = {
   en: { last: "last reading", target: "target", maxw: "max", minw: "min", high: "Too high", low: "Too low", ok: "OK", over: "OVER",
     title: "Title", meas: "Measurements shown", m1: "Latest only", m2: "Last 2", m3: "Last 3",
     sdate: "Show measurement dates", starget: "Show target", sensors: "PoolLab sensors (drag to reorder)",
-    icon: "Icon", dname: "Display name", lo: "Low threshold (target)", hi: "High threshold (target)", trend: "Show trend",
+    icon: "Icon", dname: "Display name", lo: "Low threshold (target)", hi: "High threshold (target)", clo: "Critical low (red)", chi: "Critical high (red)", trend: "Show trend",
     p: { "ph": "pH", "chlorine free": "Free chlorine", "chlorine total": "Total chlorine", "chlorine combined": "Combined chlorine", "cyanuric acid": "Cyanuric acid", "alkalinity": "Alkalinity", "bromine": "Bromine", "monochloramine": "Monochloramine", "dichloramine": "Dichloramine" } },
   fr: { last: "dernier relevé", target: "cible", maxw: "max", minw: "min", high: "Trop haut", low: "Trop bas", ok: "OK", over: "OVER",
     title: "Titre", meas: "Mesures affichées", m1: "Dernière seulement", m2: "2 dernières", m3: "3 dernières",
     sdate: "Afficher les dates de mesure", starget: "Afficher la cible", sensors: "Capteurs PoolLab (glisser pour réorganiser)",
-    icon: "Icône", dname: "Nom affiché", lo: "Seuil bas (cible)", hi: "Seuil haut (cible)", trend: "Afficher la tendance",
+    icon: "Icône", dname: "Nom affiché", lo: "Seuil bas (cible)", hi: "Seuil haut (cible)", clo: "Seuil critique bas (rouge)", chi: "Seuil critique haut (rouge)", trend: "Afficher la tendance",
     p: { "ph": "pH", "chlorine free": "Chlore libre", "chlorine total": "Chlore total", "chlorine combined": "Chlore combiné", "cyanuric acid": "Acide cyanurique", "alkalinity": "Alcalinité", "bromine": "Brome", "monochloramine": "Monochloramine", "dichloramine": "Dichloramine" } },
   ru: { last: "последнее измерение", target: "цель", maxw: "макс", minw: "мин", high: "Слишком высоко", low: "Слишком низко", ok: "OK", over: "OVER",
     title: "Заголовок", meas: "Показываемые измерения", m1: "Только последнее", m2: "Последние 2", m3: "Последние 3",
     sdate: "Показывать даты измерений", starget: "Показывать цель", sensors: "Датчики PoolLab (перетащите для изменения)",
-    icon: "Значок", dname: "Отображаемое имя", lo: "Нижний порог (цель)", hi: "Верхний порог (цель)", trend: "Показывать тренд",
+    icon: "Значок", dname: "Отображаемое имя", lo: "Нижний порог (цель)", hi: "Верхний порог (цель)", clo: "Критический нижний порог (красный)", chi: "Критический верхний порог (красный)", trend: "Показывать тренд",
     p: { "ph": "pH", "chlorine free": "Свободный хлор", "chlorine total": "Общий хлор", "chlorine combined": "Связанный хлор", "cyanuric acid": "Циануровая кислота", "alkalinity": "Щёлочность", "bromine": "Бром", "monochloramine": "Монохлорамин", "dichloramine": "Дихлорамин" } },
   de: { last: "letzte Messung", target: "Sollwert", maxw: "max", minw: "min", high: "Zu hoch", low: "Zu niedrig", ok: "OK", over: "OVER",
     title: "Titel", meas: "Angezeigte Messungen", m1: "Nur letzte", m2: "Letzte 2", m3: "Letzte 3",
     sdate: "Messdaten anzeigen", starget: "Sollwert anzeigen", sensors: "PoolLab-Sensoren (zum Sortieren ziehen)",
-    icon: "Symbol", dname: "Anzeigename", lo: "Unterer Grenzwert (Soll)", hi: "Oberer Grenzwert (Soll)", trend: "Trend anzeigen",
+    icon: "Symbol", dname: "Anzeigename", lo: "Unterer Grenzwert (Soll)", hi: "Oberer Grenzwert (Soll)", clo: "Kritischer unterer Grenzwert (rot)", chi: "Kritischer oberer Grenzwert (rot)", trend: "Trend anzeigen",
     p: { "ph": "pH", "chlorine free": "Freies Chlor", "chlorine total": "Gesamtchlor", "chlorine combined": "Gebundenes Chlor", "cyanuric acid": "Cyanursäure", "alkalinity": "Alkalinität", "bromine": "Brom", "monochloramine": "Monochloramin", "dichloramine": "Dichloramin" } },
   es: { last: "última medición", target: "objetivo", maxw: "máx", minw: "mín", high: "Demasiado alto", low: "Demasiado bajo", ok: "OK", over: "OVER",
     title: "Título", meas: "Mediciones mostradas", m1: "Solo la última", m2: "Últimas 2", m3: "Últimas 3",
     sdate: "Mostrar fechas de medición", starget: "Mostrar objetivo", sensors: "Sensores PoolLab (arrastra para reordenar)",
-    icon: "Icono", dname: "Nombre mostrado", lo: "Umbral bajo (objetivo)", hi: "Umbral alto (objetivo)", trend: "Mostrar tendencia",
+    icon: "Icono", dname: "Nombre mostrado", lo: "Umbral bajo (objetivo)", hi: "Umbral alto (objetivo)", clo: "Umbral crítico bajo (rojo)", chi: "Umbral crítico alto (rojo)", trend: "Mostrar tendencia",
     p: { "ph": "pH", "chlorine free": "Cloro libre", "chlorine total": "Cloro total", "chlorine combined": "Cloro combinado", "cyanuric acid": "Ácido cianúrico", "alkalinity": "Alcalinidad", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
   it: { last: "ultima misura", target: "obiettivo", maxw: "max", minw: "min", high: "Troppo alto", low: "Troppo basso", ok: "OK", over: "OVER",
     title: "Titolo", meas: "Misure mostrate", m1: "Solo l'ultima", m2: "Ultime 2", m3: "Ultime 3",
     sdate: "Mostra le date di misura", starget: "Mostra l'obiettivo", sensors: "Sensori PoolLab (trascina per riordinare)",
-    icon: "Icona", dname: "Nome visualizzato", lo: "Soglia bassa (obiettivo)", hi: "Soglia alta (obiettivo)", trend: "Mostra l'andamento",
+    icon: "Icona", dname: "Nome visualizzato", lo: "Soglia bassa (obiettivo)", hi: "Soglia alta (obiettivo)", clo: "Soglia critica bassa (rosso)", chi: "Soglia critica alta (rosso)", trend: "Mostra l'andamento",
     p: { "ph": "pH", "chlorine free": "Cloro libero", "chlorine total": "Cloro totale", "chlorine combined": "Cloro combinato", "cyanuric acid": "Acido cianurico", "alkalinity": "Alcalinità", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
   nl: { last: "laatste meting", target: "doel", maxw: "max", minw: "min", high: "Te hoog", low: "Te laag", ok: "OK", over: "OVER",
     title: "Titel", meas: "Getoonde metingen", m1: "Alleen laatste", m2: "2 laatste", m3: "3 laatste",
     sdate: "Meetdatums tonen", starget: "Doel tonen", sensors: "PoolLab-sensoren (sleep om te herordenen)",
-    icon: "Pictogram", dname: "Weergavenaam", lo: "Ondergrens (doel)", hi: "Bovengrens (doel)", trend: "Trend tonen",
+    icon: "Pictogram", dname: "Weergavenaam", lo: "Ondergrens (doel)", hi: "Bovengrens (doel)", clo: "Kritieke ondergrens (rood)", chi: "Kritieke bovengrens (rood)", trend: "Trend tonen",
     p: { "ph": "pH", "chlorine free": "Vrij chloor", "chlorine total": "Totaal chloor", "chlorine combined": "Gebonden chloor", "cyanuric acid": "Cyanuurzuur", "alkalinity": "Alkaliniteit", "bromine": "Broom", "monochloramine": "Monochlooramine", "dichloramine": "Dichlooramine" } },
   pt: { last: "última medição", target: "alvo", maxw: "máx", minw: "mín", high: "Demasiado alto", low: "Demasiado baixo", ok: "OK", over: "OVER",
     title: "Título", meas: "Medições mostradas", m1: "Apenas a última", m2: "Últimas 2", m3: "Últimas 3",
     sdate: "Mostrar datas de medição", starget: "Mostrar alvo", sensors: "Sensores PoolLab (arraste para reordenar)",
-    icon: "Ícone", dname: "Nome exibido", lo: "Limite baixo (alvo)", hi: "Limite alto (alvo)", trend: "Mostrar tendência",
+    icon: "Ícone", dname: "Nome exibido", lo: "Limite baixo (alvo)", hi: "Limite alto (alvo)", clo: "Limite crítico baixo (vermelho)", chi: "Limite crítico alto (vermelho)", trend: "Mostrar tendência",
     p: { "ph": "pH", "chlorine free": "Cloro livre", "chlorine total": "Cloro total", "chlorine combined": "Cloro combinado", "cyanuric acid": "Ácido cianúrico", "alkalinity": "Alcalinidade", "bromine": "Bromo", "monochloramine": "Monocloramina", "dichloramine": "Dicloramina" } },
   sv: { last: "senaste mätning", target: "målvärde", maxw: "max", minw: "min", high: "För högt", low: "För lågt", ok: "OK", over: "OVER",
     title: "Titel", meas: "Visade mätningar", m1: "Endast senaste", m2: "Senaste 2", m3: "Senaste 3",
     sdate: "Visa mätdatum", starget: "Visa målvärde", sensors: "PoolLab-sensorer (dra för att sortera om)",
-    icon: "Ikon", dname: "Visningsnamn", lo: "Undre gräns (mål)", hi: "Övre gräns (mål)", trend: "Visa trend",
+    icon: "Ikon", dname: "Visningsnamn", lo: "Undre gräns (mål)", hi: "Övre gräns (mål)", clo: "Kritisk undre gräns (röd)", chi: "Kritisk övre gräns (röd)", trend: "Visa trend",
     p: { "ph": "pH", "chlorine free": "Fritt klor", "chlorine total": "Totalt klor", "chlorine combined": "Bundet klor", "cyanuric acid": "Cyanursyra", "alkalinity": "Alkalinitet", "bromine": "Brom", "monochloramine": "Monokloramin", "dichloramine": "Dikloramin" } },
   no: { last: "siste måling", target: "målverdi", maxw: "max", minw: "min", high: "For høyt", low: "For lavt", ok: "OK", over: "OVER",
     title: "Tittel", meas: "Viste målinger", m1: "Kun siste", m2: "Siste 2", m3: "Siste 3",
     sdate: "Vis måledatoer", starget: "Vis målverdi", sensors: "PoolLab-sensorer (dra for å sortere om)",
-    icon: "Ikon", dname: "Visningsnavn", lo: "Nedre grense (mål)", hi: "Øvre grense (mål)", trend: "Vis trend",
+    icon: "Ikon", dname: "Visningsnavn", lo: "Nedre grense (mål)", hi: "Øvre grense (mål)", clo: "Kritisk nedre grense (rød)", chi: "Kritisk øvre grense (rød)", trend: "Vis trend",
     p: { "ph": "pH", "chlorine free": "Fritt klor", "chlorine total": "Totalt klor", "chlorine combined": "Bundet klor", "cyanuric acid": "Cyanursyre", "alkalinity": "Alkalinitet", "bromine": "Brom", "monochloramine": "Monokloramin", "dichloramine": "Dikloramin" } },
   da: { last: "seneste måling", target: "målværdi", maxw: "max", minw: "min", high: "For høj", low: "For lav", ok: "OK", over: "OVER",
     title: "Titel", meas: "Viste målinger", m1: "Kun seneste", m2: "Seneste 2", m3: "Seneste 3",
     sdate: "Vis målingsdatoer", starget: "Vis målværdi", sensors: "PoolLab-sensorer (træk for at omarrangere)",
-    icon: "Ikon", dname: "Visningsnavn", lo: "Nedre grænse (mål)", hi: "Øvre grænse (mål)", trend: "Vis tendens",
+    icon: "Ikon", dname: "Visningsnavn", lo: "Nedre grænse (mål)", hi: "Øvre grænse (mål)", clo: "Kritisk nedre grænse (rød)", chi: "Kritisk øvre grænse (rød)", trend: "Vis tendens",
     p: { "ph": "pH", "chlorine free": "Frit klor", "chlorine total": "Total klor", "chlorine combined": "Bundet klor", "cyanuric acid": "Cyanursyre", "alkalinity": "Alkalinitet", "bromine": "Brom", "monochloramine": "Monokloramin", "dichloramine": "Dikloramin" } },
   pl: { last: "ostatni pomiar", target: "cel", maxw: "max", minw: "min", high: "Za wysoko", low: "Za nisko", ok: "OK", over: "OVER",
     title: "Tytuł", meas: "Wyświetlane pomiary", m1: "Tylko ostatni", m2: "Ostatnie 2", m3: "Ostatnie 3",
     sdate: "Pokaż daty pomiarów", starget: "Pokaż cel", sensors: "Czujniki PoolLab (przeciągnij, aby zmienić kolejność)",
-    icon: "Ikona", dname: "Nazwa wyświetlana", lo: "Próg dolny (cel)", hi: "Próg górny (cel)", trend: "Pokaż trend",
+    icon: "Ikona", dname: "Nazwa wyświetlana", lo: "Próg dolny (cel)", hi: "Próg górny (cel)", clo: "Krytyczny próg dolny (czerwony)", chi: "Krytyczny próg górny (czerwony)", trend: "Pokaż trend",
     p: { "ph": "pH", "chlorine free": "Chlor wolny", "chlorine total": "Chlor całkowity", "chlorine combined": "Chlor związany", "cyanuric acid": "Kwas cyjanurowy", "alkalinity": "Zasadowość", "bromine": "Brom", "monochloramine": "Monochloroamina", "dichloramine": "Dichloroamina" } },
 };
 
@@ -217,9 +217,11 @@ class PoolLabCard extends HTMLElement {
         .pl-target { font-size: 0.74em; color: var(--secondary-text-color); margin-top: 3px; }
         .pl-ok { color: #00b894; }
         .pl-warn { color: #e17055; }
+        .pl-crit { color: #d63031; }
         .pl-neutral { color: var(--primary-text-color); }
         .pl-pill-ok { background: rgba(0,184,148,0.15); color: #00b894; }
         .pl-pill-warn { background: rgba(225,112,85,0.15); color: #e17055; }
+        .pl-pill-crit { background: rgba(214,48,49,0.15); color: #d63031; }
         .pl-pill-neutral { background: var(--secondary-background-color); color: var(--secondary-text-color); }
         .pl-unavailable { opacity: 0.4; }
       </style>
@@ -330,17 +332,29 @@ class PoolLabCard extends HTMLElement {
       if (dt) { if (lo == null) lo = dt.min; if (hi == null) hi = dt.max; }
     }
 
+    // Optional per-entity critical bounds (3rd color tier): outside min/max is
+    // orange as before, beyond critical_min/critical_max it turns red.
+    const clo = cfg.critical_min != null && cfg.critical_min !== "" ? parseFloat(cfg.critical_min) : null;
+    const chi = cfg.critical_max != null && cfg.critical_max !== "" ? parseFloat(cfg.critical_max) : null;
+
     const dec = this._decimals(cfg, isFinite(val) ? val : 0);
     let cls = "pl-neutral", pill = "", pillCls = "pl-pill-neutral", valTxt;
     if (over) {
-      cls = "pl-warn"; pill = t.over; pillCls = "pl-pill-warn";
+      // An OVER reading is beyond the test's measurable ceiling; when the user
+      // opted into a critical high, that's a critical deviation by definition.
+      const crit = chi != null;
+      cls = crit ? "pl-crit" : "pl-warn"; pill = t.over; pillCls = crit ? "pl-pill-crit" : "pl-pill-warn";
       const tmax = cfg.test_max != null ? cfg.test_max : (plTestMax(a.parameter) != null ? plTestMax(a.parameter) : hi);
       valTxt = tmax != null ? ("> " + tmax) : t.over;
     } else {
       valTxt = isFinite(val) ? this._num(val, dec) : st.state;
-      if (lo != null && val < lo) { cls = "pl-warn"; pill = t.low; pillCls = "pl-pill-warn"; }
-      else if (hi != null && val > hi) { cls = "pl-warn"; pill = t.high; pillCls = "pl-pill-warn"; }
-      else if (lo != null || hi != null) { cls = "pl-ok"; pill = t.ok; pillCls = "pl-pill-ok"; }
+      if (lo != null && val < lo) {
+        const crit = clo != null && val < clo;
+        cls = crit ? "pl-crit" : "pl-warn"; pill = t.low; pillCls = crit ? "pl-pill-crit" : "pl-pill-warn";
+      } else if (hi != null && val > hi) {
+        const crit = chi != null && val > chi;
+        cls = crit ? "pl-crit" : "pl-warn"; pill = t.high; pillCls = crit ? "pl-pill-crit" : "pl-pill-warn";
+      } else if (lo != null || hi != null) { cls = "pl-ok"; pill = t.ok; pillCls = "pl-pill-ok"; }
     }
 
     const hist = (this._hist && this._hist[cfg.entity]) || [];
@@ -455,6 +469,10 @@ class PoolLabCardEditor extends HTMLElement {
           if (mn != null && mn !== "" && !(d.lo != null && Math.abs(parseFloat(mn) - d.lo) < 1e-9)) r.min = mn;
           const mx = o.max;
           if (mx != null && mx !== "" && !(d.hi != null && Math.abs(parseFloat(mx) - d.hi) < 1e-9)) r.max = mx;
+          const cmn = o.critical_min;
+          if (cmn != null && cmn !== "") r.critical_min = cmn;
+          const cmx = o.critical_max;
+          if (cmx != null && cmx !== "") r.critical_max = cmx;
           if (o.trend === false) r.trend = false;
           if (old.unit != null) r.unit = old.unit;
           if (old.decimals != null) r.decimals = old.decimals;
@@ -486,6 +504,8 @@ class PoolLabCardEditor extends HTMLElement {
         name: e.name || "",
         min: e.min != null ? e.min : (d.lo != null ? d.lo : ""),
         max: e.max != null ? e.max : (d.hi != null ? d.hi : ""),
+        critical_min: e.critical_min != null ? e.critical_min : "",
+        critical_max: e.critical_max != null ? e.critical_max : "",
         trend: e.trend !== false,
       };
     }
@@ -512,6 +532,8 @@ class PoolLabCardEditor extends HTMLElement {
           { name: "name", label: t.dname, selector: { text: {} } },
           { name: "min", label: t.lo, selector: { number: { mode: "box", step: "any" } } },
           { name: "max", label: t.hi, selector: { number: { mode: "box", step: "any" } } },
+          { name: "critical_min", label: t.clo, selector: { number: { mode: "box", step: "any" } } },
+          { name: "critical_max", label: t.chi, selector: { number: { mode: "box", step: "any" } } },
           { name: "trend", label: t.trend, selector: { boolean: {} } },
         ],
       });

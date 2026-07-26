@@ -26,7 +26,7 @@ against its ideal target — with proper handling of **OVER** readings (values a
 
 ## Features
 
-- One row per parameter: name, real measurement date, the two previous values, current value, target, status pill (`OK` / `Too high` / `Too low` / `OVER`).
+- One row per parameter: name, real measurement date, the two previous values, current value, target, status pill (`OK` / `Too high` / `Too low` / `OVER`) — green in range, orange outside, and optionally **red** beyond per-parameter `critical_min` / `critical_max` bounds.
 - **Automatic targets**: the ideal range you set in the PoolLab app (`ideal_low` / `ideal_high`) is read from the entity — no threshold config needed, overridable per parameter, cached in `localStorage` for measurements without targets.
 - **Trend arrow** comparing the current reading to the previous one (toward the range = green, away = orange).
 - **OVER handling**: when a test exceeds its measurable ceiling, the card shows `> max` (built-in table of PoolLab ceilings: pH 8.4, chlorine 6, CYA 100, TA 200…) instead of a meaningless number.
@@ -67,6 +67,8 @@ entities:
     name: pH
     min: 7.0          # override ideal target low (green zone)
     max: 7.4          # override ideal target high
+    critical_min: 6.8 # optional 3rd tier: below this the value turns red
+    critical_max: 8.0 # optional 3rd tier: above this the value turns red
     trend: true       # show/hide the trend arrow for this parameter
     decimals: 2       # number of decimals shown (advanced, YAML only)
   - entity: sensor.my_pool_pl_chlorine_total
@@ -85,7 +87,9 @@ entities:
 | `show_date` | `true` | Show each measurement's real date (`measured_at`) |
 | `show_target` | `true` | Show the ideal range under the status pill |
 
-Per-entity (object form, `icon` / `name` / `min` / `max` / `trend` editable in the UI editor): `name`, `icon`, `unit`, `min`, `max`, `trend`, `decimals`, `test_max`.
+Per-entity (object form, `icon` / `name` / `min` / `max` / `critical_min` / `critical_max` / `trend` editable in the UI editor): `name`, `icon`, `unit`, `min`, `max`, `critical_min`, `critical_max`, `trend`, `decimals`, `test_max`.
+
+**3-tier colors** (optional): by default the value is green in range and orange outside. Set `critical_min` / `critical_max` to add a red tier for strong deviations — orange between the target and the critical bound, red beyond it (an OVER reading also turns red when `critical_max` is set).
 
 OVER detection is fixed (the integration reports a very large value when a test exceeds its measurable range); the card shows `> max` using a built-in table of PoolLab test ceilings.
 

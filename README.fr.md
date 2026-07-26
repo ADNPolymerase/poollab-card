@@ -26,7 +26,7 @@ les mesures précédentes datées, et une gestion correcte des mesures **OVER** 
 
 ## Fonctionnalités
 
-- Une ligne par paramètre : nom, date réelle de mesure, les 2 valeurs précédentes, valeur actuelle, cible, pastille d'état (`OK` / `Trop haut` / `Trop bas` / `OVER`).
+- Une ligne par paramètre : nom, date réelle de mesure, les 2 valeurs précédentes, valeur actuelle, cible, pastille d'état (`OK` / `Trop haut` / `Trop bas` / `OVER`) — verte dans la plage, orange en dehors, et en option **rouge** au-delà des seuils `critical_min` / `critical_max` par paramètre.
 - **Cibles automatiques** : la plage idéale réglée dans l'app PoolLab (`ideal_low` / `ideal_high`) est lue depuis l'entité — aucun seuil à configurer, surchargeable par paramètre, conservée dans `localStorage` pour les mesures sans cible.
 - **Flèche de tendance** comparant la mesure actuelle à la précédente (vers la cible = vert, en s'éloignant = orange).
 - **Gestion OVER** : quand un test dépasse sa plage mesurable, la carte affiche `> max` (table intégrée des plafonds PoolLab : pH 8.4, chlore 6, CYA 100, TA 200…) au lieu d'une valeur aberrante.
@@ -67,6 +67,8 @@ entities:
     name: pH
     min: 7.0          # surcharge la cible basse (zone verte)
     max: 7.4          # surcharge la cible haute
+    critical_min: 6.8 # 3e niveau optionnel : en dessous, la valeur passe au rouge
+    critical_max: 8.0 # 3e niveau optionnel : au-dessus, la valeur passe au rouge
     trend: true       # afficher/masquer la flèche de tendance pour ce paramètre
     decimals: 2       # nombre de décimales affichées (avancé, YAML uniquement)
   - entity: sensor.my_pool_pl_chlorine_total
@@ -85,7 +87,9 @@ entities:
 | `show_date` | `true` | Afficher la date réelle de chaque mesure (`measured_at`) |
 | `show_target` | `true` | Afficher la plage idéale sous la pastille d'état |
 
-Par entité (forme objet, `icon` / `name` / `min` / `max` / `trend` modifiables dans l'éditeur visuel) : `name`, `icon`, `unit`, `min`, `max`, `trend`, `decimals`, `test_max`.
+Par entité (forme objet, `icon` / `name` / `min` / `max` / `critical_min` / `critical_max` / `trend` modifiables dans l'éditeur visuel) : `name`, `icon`, `unit`, `min`, `max`, `critical_min`, `critical_max`, `trend`, `decimals`, `test_max`.
+
+**Coloration 3 niveaux** (optionnelle) : par défaut la valeur est verte dans la plage et orange en dehors. Définissez `critical_min` / `critical_max` pour ajouter un niveau rouge en cas d'écart fort — orange entre la cible et le seuil critique, rouge au-delà (une mesure OVER passe aussi au rouge quand `critical_max` est défini).
 
 La détection OVER est fixe (l'intégration renvoie une valeur très élevée quand un test dépasse sa plage mesurable) ; la carte affiche `> max` en utilisant une table intégrée des plages maximales PoolLab.
 
