@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.6.0-beta.1";
+const CARD_VERSION = "0.6.0";
 const _D = String.fromCharCode(176);
 const _e = String.fromCharCode(233);
 const _eg = String.fromCharCode(232);
