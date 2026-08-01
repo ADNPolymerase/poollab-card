@@ -122,6 +122,18 @@ function plParamName(st, t) {
   return dict[key] || PL_T.en.p[key] || n;
 }
 
+// Escapes text and quoted-attribute values built into innerHTML markup.
+// Measurement names, units and icons come from entity attributes and card YAML,
+// so they are never safe to concatenate raw.
+function plEsc(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function plDate(iso, lang) {
   if (!iso) return "";
   const d = new Date(iso);
@@ -298,7 +310,7 @@ class PoolLabCard extends HTMLElement {
   _rowHtml(cfg) {
     const st = this._state(cfg.entity);
     if (!st) {
-      return "<div class=\"pl-row pl-unavailable\"><div class=\"pl-name\"><ha-icon icon=\"mdi:help-circle-outline\"></ha-icon><div class=\"pl-pname\">" + (cfg.name || cfg.entity) + "</div></div><div class=\"pl-trend\"><span class=\"pl-cur\">" + String.fromCharCode(8212) + "</span></div><div class=\"pl-right\"></div></div>";
+      return "<div class=\"pl-row pl-unavailable\"><div class=\"pl-name\"><ha-icon icon=\"mdi:help-circle-outline\"></ha-icon><div class=\"pl-pname\">" + plEsc(cfg.name || cfg.entity) + "</div></div><div class=\"pl-trend\"><span class=\"pl-cur\">" + String.fromCharCode(8212) + "</span></div><div class=\"pl-right\"></div></div>";
     }
     const a = st.attributes;
     const t = this._t();
@@ -376,19 +388,19 @@ class PoolLabCard extends HTMLElement {
     }
 
     const curDateHtml = (this._config.show_date && curDate) ? "<span class=\"pl-mdate\">" + this._fmtDate(curDate) + "</span>" : "";
-    const unitHtml = (unit && !over) ? "<span class=\"pl-unit\">" + unit + "</span>" : "";
-    const curHtml = "<div class=\"pl-m\"><div class=\"pl-curline\"><span class=\"pl-cur " + cls + "\">" + valTxt + "</span>" + unitHtml + "</div>" + curDateHtml + "</div>";
+    const unitHtml = (unit && !over) ? "<span class=\"pl-unit\">" + plEsc(unit) + "</span>" : "";
+    const curHtml = "<div class=\"pl-m\"><div class=\"pl-curline\"><span class=\"pl-cur " + cls + "\">" + plEsc(valTxt) + "</span>" + unitHtml + "</div>" + curDateHtml + "</div>";
 
     let targetHtml = "";
     if (this._config.show_target !== false) {
-      if (lo != null && hi != null) targetHtml = t.target + " " + this._clean(lo) + String.fromCharCode(8211) + this._clean(hi);
-      else if (hi != null) targetHtml = t.maxw + " " + this._clean(hi);
-      else if (lo != null) targetHtml = t.minw + " " + this._clean(lo);
+      if (lo != null && hi != null) targetHtml = plEsc(t.target) + " " + this._clean(lo) + String.fromCharCode(8211) + this._clean(hi);
+      else if (hi != null) targetHtml = plEsc(t.maxw) + " " + this._clean(hi);
+      else if (lo != null) targetHtml = plEsc(t.minw) + " " + this._clean(lo);
     }
-    const pillHtml = pill ? "<span class=\"pl-pill " + pillCls + "\">" + pill + "</span>" : "";
+    const pillHtml = pill ? "<span class=\"pl-pill " + pillCls + "\">" + plEsc(pill) + "</span>" : "";
 
     return "<div class=\"pl-row\">" +
-      "<div class=\"pl-name\"><ha-icon icon=\"" + icon + "\"></ha-icon><div class=\"pl-pname\">" + name + "</div></div>" +
+      "<div class=\"pl-name\"><ha-icon icon=\"" + plEsc(icon) + "\"></ha-icon><div class=\"pl-pname\">" + plEsc(name) + "</div></div>" +
       "<div class=\"pl-trend\">" + trendHtml + curHtml + "</div>" +
       "<div class=\"pl-right\">" + pillHtml + (targetHtml ? "<div class=\"pl-target\">" + targetHtml + "</div>" : "") + "</div>" +
       "</div>";
