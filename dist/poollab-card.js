@@ -91,13 +91,20 @@ const PL_DEFAULT_TARGETS = { "ph": { min: 7.2, max: 7.6 } };
 const PL_LANGNAMES = { en: "English", fr: "Français", de: "Deutsch", es: "Español", it: "Italiano", nl: "Nederlands", pt: "Português" };
 const PL_LANGLABEL = { en: "Language", fr: "Langue", de: "Sprache", es: "Idioma", it: "Lingua", nl: "Taal", pt: "Idioma" };
 
-function plDefaultTarget(param) {
+// Parameter names reach us as free text ("PL pH", "pH-Wert", "Chlorine free
+// DPD"), so a table lookup has to tolerate surrounding words — but only whole
+// ones: matching on a bare substring had "Phosphate LR" and "PHMB" pick up the
+// pH row and get colored against a 7.2-7.6 target.
+function plLookup(param, table) {
   if (!param) return null;
   const p = String(param).toLowerCase().replace(/^pl\s+/, "").trim();
-  if (p in PL_DEFAULT_TARGETS) return PL_DEFAULT_TARGETS[p];
-  for (const k in PL_DEFAULT_TARGETS) if (p.indexOf(k) !== -1) return PL_DEFAULT_TARGETS[k];
+  if (p in table) return table[p];
+  const words = " " + p.replace(/[^a-z0-9]+/g, " ").trim() + " ";
+  for (const k in table) if (words.indexOf(" " + k + " ") !== -1) return table[k];
   return null;
 }
+
+function plDefaultTarget(param) { return plLookup(param, PL_DEFAULT_TARGETS); }
 
 function plLangCode(hass, cfg) {
   let l = (cfg && cfg.language) || (hass && ((hass.locale && hass.locale.language) || hass.language)) || "en";
@@ -142,13 +149,7 @@ function plDate(iso, lang) {
   catch (e) { return d.toLocaleDateString("en", { day: "numeric", month: "short" }); }
 }
 
-function plTestMax(param) {
-  if (!param) return null;
-  const p = String(param).toLowerCase().replace(/^pl\s+/, "").trim();
-  if (p in PL_TEST_MAX) return PL_TEST_MAX[p];
-  for (const k in PL_TEST_MAX) if (p.indexOf(k) !== -1) return PL_TEST_MAX[k];
-  return null;
-}
+function plTestMax(param) { return plLookup(param, PL_TEST_MAX); }
 
 function plKey(id) { return "e_" + String(id).replace(/[^a-z0-9]/gi, "_"); }
 

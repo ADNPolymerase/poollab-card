@@ -164,10 +164,22 @@ check('cible affichée',    target(ph(7.4, TH)), `target 7.2${NDASH}7.6`);
 check('cible alcalinité',  alkTarget({ min: 80, max: 120 }), `target 80${NDASH}120`);
 check('seuil haut seul',   alkTarget({ max: 120 }), 'max 120');
 check('seuil bas seul',    alkTarget({ min: 80 }), 'min 80');
-check('pH sans seuils → cible par défaut 7.2-7.6',
-  target(ph(7.4)), `target 7.2${NDASH}7.6`);
 check('show_target: false → cible masquée',
   target(ph(7.4, TH, {}, {}, { show_target: false })), '(aucune)');
+
+// Tier 4, the built-in defaults. The table is keyed on parameter names, which
+// arrive as free text — so extra words are tolerated, whole words only. A bare
+// substring match had "Phosphate LR" and "PHMB" inherit the pH target.
+const bare = (parameter, value) => renderCard({ entities: [{ entity: AID }] },
+  { [AID]: sensor(parameter, value) }).rows;
+
+check('pH sans seuils → cible par défaut',      target(bare('pH', 7.4)), `target 7.2${NDASH}7.6`);
+check('préfixe PL ignoré',                      target(bare('PL pH', 7.4)), `target 7.2${NDASH}7.6`);
+check('mot en plus toléré (pH-Wert)',           target(bare('pH-Wert', 7.4)), `target 7.2${NDASH}7.6`);
+check("Phosphate LR n'hérite pas de la cible du pH", target(bare('Phosphate LR', 0.5)), '(aucune)');
+check('Phosphate LR reste donc neutre, pas « trop bas »', cls(bare('Phosphate LR', 0.5)), 'pl-neutral');
+check("PHMB n'hérite pas de la cible du pH",    target(bare('PHMB', 30)), '(aucune)');
+check("l'alcalinité n'a pas de cible par défaut", target(bare('Alkalinity', 100)), '(aucune)');
 
 // ── OVER: past the ceiling of the test, there is no number to color ─────────
 
@@ -190,6 +202,11 @@ check('OVER → à défaut, repli sur le seuil haut',
   value(over({ max: 3.5 }, 'Salinity').rows), '&gt; 3.5');
 check('OVER → sans plafond connu ni seuil, mot OVER',
   value(over({}, 'Salinity').rows), 'OVER');
+// Same whole-word rule on the ceilings table, which also has a "ph" row.
+check('OVER → plafond tolère les mots en plus',
+  value(over({}, 'Chlorine free DPD').rows), '&gt; 6');
+check('OVER → un paramètre inconnu contenant « ph » n\'emprunte pas le plafond du pH',
+  value(over({}, 'Phosphonate').rows), 'OVER');
 check("OVER → pas d'unité (elle n'a plus de sens)", unit(over().rows), '(aucune)');
 
 // The threshold is a floor, not a ceiling: 99999 is still a real reading.
