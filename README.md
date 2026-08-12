@@ -28,7 +28,7 @@ against its ideal target — with proper handling of **OVER** readings (values a
 
 - One row per parameter: name, real measurement date, the two previous values, current value, target, status pill (`OK` / `Too high` / `Too low` / `OVER`) — green in range, orange outside, and optionally **red** beyond per-parameter `critical_min` / `critical_max` bounds.
 - **Automatic targets**: the ideal range you set in the PoolLab app (`ideal_low` / `ideal_high`) is read from the entity — no threshold config needed, overridable per parameter, cached in `localStorage` for measurements without targets.
-- **Trend arrow** comparing the current reading to the previous one (toward the range = green, away = orange).
+- **Trend arrow** comparing the current reading to the previous one: green when it moves toward the middle of the target range, orange when it moves away (neutral when the parameter has no target).
 - **OVER handling**: when a test exceeds its measurable ceiling, the card shows `> max` (built-in table of PoolLab ceilings: pH 8.4, chlorine 6, CYA 100, TA 200…) instead of a meaningless number.
 - Native HA editor (entity picker) + full YAML control.
 

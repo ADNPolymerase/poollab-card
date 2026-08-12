@@ -28,7 +28,7 @@ les mesures précédentes datées, et une gestion correcte des mesures **OVER** 
 
 - Une ligne par paramètre : nom, date réelle de mesure, les 2 valeurs précédentes, valeur actuelle, cible, pastille d'état (`OK` / `Trop haut` / `Trop bas` / `OVER`) — verte dans la plage, orange en dehors, et en option **rouge** au-delà des seuils `critical_min` / `critical_max` par paramètre.
 - **Cibles automatiques** : la plage idéale réglée dans l'app PoolLab (`ideal_low` / `ideal_high`) est lue depuis l'entité — aucun seuil à configurer, surchargeable par paramètre, conservée dans `localStorage` pour les mesures sans cible.
-- **Flèche de tendance** comparant la mesure actuelle à la précédente (vers la cible = vert, en s'éloignant = orange).
+- **Flèche de tendance** comparant la mesure actuelle à la précédente : verte quand elle se rapproche du milieu de la plage cible, orange quand elle s'en éloigne (neutre si le paramètre n'a pas de cible).
 - **Gestion OVER** : quand un test dépasse sa plage mesurable, la carte affiche `> max` (table intégrée des plafonds PoolLab : pH 8.4, chlore 6, CYA 100, TA 200…) au lieu d'une valeur aberrante.
 - Éditeur natif HA (sélecteur d'entités) + contrôle YAML complet.
 
