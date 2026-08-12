@@ -296,11 +296,11 @@ check('show_date: false → aucun sous-titre',
 // CustomEvent.detail is a readonly accessor: assigning it after construction
 // silently drops the payload and every edit made in the editor is discarded.
 
-function makeEditor(config, states) {
+function makeEditor(config, states, language = 'en') {
   localStorage.clear();
   const ed = new Editor();
   ed.setConfig(config);
-  ed.hass = { states, locale: { language: 'en' } };
+  ed.hass = { states, locale: { language } };
   const form = ed.children[ed.children.length - 1];
   return { ed, form, schema: form.schema, data: form.data };
 }
@@ -418,5 +418,35 @@ dflt.form.dispatchEvent({ type: 'value-changed', detail: { value: {
 } } });
 check('seuil modifié → écrit dans la config',
   dflt.ed.events.at(-1).detail.config.entities[0].min, 85);
+
+// ── Languages: whatever the card speaks, the editor has to offer ────────────
+// The dropdown is built from its own table, which drifted five releases behind
+// the translations without anything showing: sv/no/da/pl/ru were reachable
+// from YAML only.
+
+const LANGS = ['en', 'fr', 'de', 'es', 'it', 'nl', 'pt', 'sv', 'no', 'da', 'pl', 'ru'];
+
+/** "target" is worded differently in all twelve, so a fallback to English shows. */
+const targetWord = l => target(renderCard(
+  { language: l, entities: [{ entity: AID, min: 80, max: 120 }] },
+  { [AID]: sensor('Alkalinity', 100) }).rows).split(' ')[0];
+
+check('les langues annoncées sont réellement traduites',
+  LANGS.filter(l => l !== 'en' && targetWord(l) === targetWord('en')).join(','), '');
+
+const langField = makeEditor({ entities: [{ entity: AID }] }, alk)
+  .schema.find(s => s.name === 'language');
+const offered = langField.selector.select.options.map(o => o.value).filter(Boolean);
+
+check("l'éditeur propose toutes les langues traduites",
+  LANGS.filter(l => !offered.includes(l)).join(','), '');
+check("l'éditeur ne propose aucune langue non traduite",
+  offered.filter(l => !LANGS.includes(l)).join(','), '');
+
+// The dropdown's own label comes from a second table, which can fall behind the
+// same way — a Swedish editor showing an English "Language" row.
+check('libellé du menu de langue localisé partout',
+  LANGS.filter(l => l !== 'en' && makeEditor({ entities: [{ entity: AID }] }, alk, l)
+    .schema.find(s => s.name === 'language').label === 'Language').join(','), '');
 
 report();

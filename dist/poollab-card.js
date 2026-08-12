@@ -88,8 +88,11 @@ const PL_T = {
 };
 
 const PL_DEFAULT_TARGETS = { "ph": { min: 7.2, max: 7.6 } };
-const PL_LANGNAMES = { en: "English", fr: "Français", de: "Deutsch", es: "Español", it: "Italiano", nl: "Nederlands", pt: "Português" };
-const PL_LANGLABEL = { en: "Language", fr: "Langue", de: "Sprache", es: "Idioma", it: "Lingua", nl: "Taal", pt: "Idioma" };
+// Both tables drive the editor's language row and must cover every language in
+// PL_T — they are what makes a translation reachable from the UI rather than
+// from YAML only.
+const PL_LANGNAMES = { en: "English", fr: "Français", de: "Deutsch", es: "Español", it: "Italiano", nl: "Nederlands", pt: "Português", sv: "Svenska", no: "Norsk", da: "Dansk", pl: "Polski", ru: "Русский" };
+const PL_LANGLABEL = { en: "Language", fr: "Langue", de: "Sprache", es: "Idioma", it: "Lingua", nl: "Taal", pt: "Idioma", sv: "Språk", no: "Språk", da: "Sprog", pl: "Język", ru: "Язык" };
 
 // Parameter names reach us as free text ("PL pH", "pH-Wert", "Chlorine free
 // DPD"), so a table lookup has to tolerate surrounding words — but only whole
