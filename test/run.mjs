@@ -31,11 +31,13 @@ const Editor = registry.get('poollab-card-editor');
 // The harness's nodes swallow listeners, and the editor's whole contract runs
 // through the ha-form value-changed it subscribes to — so make created nodes
 // able to fire back.
+let created = 0;   // counts elements built, to catch a form rebuilt in a loop
 const _create = globalThis.document.createElement;
 globalThis.document.createElement = tag => {
   const n = _create(tag), ls = {};
   n.addEventListener = (type, fn) => { (ls[type] = ls[type] || []).push(fn); };
   n.dispatchEvent = ev => { (ls[ev.type] || []).forEach(fn => fn(ev)); return true; };
+  created++;
   return n;
 };
 
@@ -132,10 +134,21 @@ check('pastille rouge en haut', pill(ph(8.01, TH)), 'pl-pill-crit Too high');
 check('hors cible sans seuil critique → jamais rouge',
   cls(ph(6.0, { min: 7.2, max: 7.6 })), 'pl-warn');
 
-// Priority of the threshold sources: measurement attributes beat the card
-// config, so a value the YAML would flag can still read OK — and back.
-check('les seuils du relevé priment sur ceux du YAML',
-  cls(ph(7.7, { min: 7.2, max: 7.6 }, { ideal_low: 7.0, ideal_high: 7.8 })), 'pl-ok');
+// Priority of the threshold sources. A bound typed by hand is an explicit
+// decision and outranks the one the PoolLab app publishes: what the editor
+// shows and what the card displays have to be the same number.
+const APP = { ideal_low: 7.0, ideal_high: 7.8 };
+
+check('seuil saisi à la main → c\'est lui qui s\'affiche',
+  target(ph(7.4, { min: 7.2, max: 7.6 }, APP)), `target 7.2${NDASH}7.6`);
+check('seuil saisi à la main → c\'est lui qui colore',
+  cls(ph(7.7, { min: 7.2, max: 7.6 }, APP)), 'pl-warn');
+check('aucun seuil saisi → celui de l\'app PoolLab',
+  target(ph(7.4, {}, APP)), `target 7${NDASH}7.8`);
+check('aucun seuil saisi → celui de l\'app colore',
+  cls(ph(7.7, {}, APP)), 'pl-ok');
+check('un seul seuil saisi → l\'autre borne reste celle de l\'app',
+  target(ph(7.4, { min: 7.1 }, APP)), `target 7.1${NDASH}7.8`);
 check('ideal_low/high à -1 = pas de seuil → le YAML reprend la main',
   cls(ph(7.7, { min: 7.2, max: 7.6 }, { ideal_low: -1, ideal_high: -1 })), 'pl-warn');
 
@@ -152,6 +165,14 @@ check('relevé suivant sans seuils → seuils repris du cache',
 check('cache vidé → plus aucun seuil, valeur neutre',
   cls(renderCard({ entities: [{ entity: AID }] },
     { [AID]: sensor('Alkalinity', 200) }).rows), 'pl-neutral');
+
+// Only the app's values are cached. Caching a hand-typed bound would make it
+// outlive its own removal from the config — the same mismatch, one step later.
+renderCard({ entities: [{ entity: AID, min: 80, max: 120 }] },
+  { [AID]: sensor('Alkalinity', 100) });
+check('seuil saisi à la main puis retiré → rien ne subsiste du cache',
+  cls(renderCard({ entities: [{ entity: AID }] },
+    { [AID]: sensor('Alkalinity', 200) }, { keepCache: true }).rows), 'pl-neutral');
 check('aucun seuil → aucune pastille',
   pill(renderCard({ entities: [{ entity: AID }] },
     { [AID]: sensor('Alkalinity', 200) }).rows), '(aucune)');
@@ -418,6 +439,60 @@ dflt.form.dispatchEvent({ type: 'value-changed', detail: { value: {
 } } });
 check('seuil modifié → écrit dans la config',
   dflt.ed.events.at(-1).detail.config.entities[0].min, 85);
+
+// ── Editor: no rebuild loop, no echo ────────────────────────────────────────
+// Home Assistant calls setConfig again after every config-changed the editor
+// emits. An editor that rebuilds its form on each call recreates its child
+// controls, and a control that has just been created can emit an empty
+// value-changed which is then saved over the configured entity — a card losing
+// its sensor with nobody touching anything. This editor builds its ha-form once
+// and refreshes values in place; these two assertions are what keeps it so.
+
+const KEEP = { type: 'custom:poollab-card', entities: [{ entity: AID }] };
+const stable = makeEditor(KEEP, alk);
+stable.ed.innerHTML = 'SENTINELLE';
+const builtBefore = created;
+stable.ed.setConfig(KEEP);
+stable.ed.setConfig(KEEP);
+stable.ed.hass = { states: alk, locale: { language: 'en' } };
+check('setConfig répété ne reconstruit aucun élément', created - builtBefore, 0);
+check('setConfig répété laisse le DOM en place', stable.ed.markup, 'SENTINELLE');
+
+// The echo has to stay silent too, or the editor and HA ping-pong config
+// changes at each other.
+const echo = makeEditor(KEEP, alk);
+const emittedBefore = echo.ed.events.length;
+echo.ed.setConfig(JSON.parse(JSON.stringify(echo.ed._config)));
+echo.ed.hass = { states: alk, locale: { language: 'en' } };
+check("l'écho de setConfig n'émet aucun config-changed",
+  echo.ed.events.length - emittedBefore, 0);
+check("l'écho de setConfig ne perd pas l'entité",
+  echo.ed._config.entities.map(e => e.entity).join(','), AID);
+
+// ── Editor and card must show the same target ───────────────────────────────
+// The number pre-filled in the editor's threshold box and the number printed on
+// the card's target line come from two separate cascades. They have to resolve
+// identically, or the user reads one target in the menu and gets another on the
+// card.
+
+const menuVsCard = (entity, attrs) => {
+  const states = { [AID]: sensor('Alkalinity', 100, attrs) };
+  const e = makeEditor({ entities: [{ entity: AID, ...entity }] }, states);
+  const box = e.data[Object.keys(e.data).find(k => k.startsWith('e_'))];
+  const shown = target(renderCard({ entities: [{ entity: AID, ...entity }] },
+    states, { keepCache: true }).rows).replace(/^\S+\s/, '');
+  return `menu ${box.min}${NDASH}${box.max} / card ${shown}`;
+};
+
+check('menu et card d\'accord — deux seuils saisis',
+  menuVsCard({ min: 80, max: 120 }, { ideal_low: 70, ideal_high: 130 }),
+  `menu 80${NDASH}120 / card 80${NDASH}120`);
+check('menu et card d\'accord — aucun seuil saisi',
+  menuVsCard({}, { ideal_low: 70, ideal_high: 130 }),
+  `menu 70${NDASH}130 / card 70${NDASH}130`);
+check('menu et card d\'accord — un seul seuil saisi',
+  menuVsCard({ min: 75 }, { ideal_low: 70, ideal_high: 130 }),
+  `menu 75${NDASH}130 / card 75${NDASH}130`);
 
 // ── Languages: whatever the card speaks, the editor has to offer ────────────
 // The dropdown is built from its own table, which drifted five releases behind

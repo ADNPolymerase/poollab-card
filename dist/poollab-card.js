@@ -325,22 +325,26 @@ class PoolLabCard extends HTMLElement {
     const over = isFinite(val) && val >= OVER_THRESHOLD;
     const N = this._config.measurements || 3;
 
-    // 1. Measurement thresholds (highest priority) → write to cache
-    let lo = a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null;
-    let hi = a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null;
-    if (lo != null || hi != null) {
-      _thCache.set(cfg.entity, lo, hi);
-    } else {
-      // 2. User config thresholds → write to cache
-      if (cfg.min != null && cfg.min !== "") lo = parseFloat(cfg.min);
-      if (cfg.max != null && cfg.max !== "") hi = parseFloat(cfg.max);
-      if (lo != null || hi != null) {
-        _thCache.set(cfg.entity, lo, hi);
-      } else {
-        // 3. Cache fallback (read only)
-        const cached = _thCache.get(cfg.entity);
-        if (cached) { lo = cached.lo; hi = cached.hi; }
-      }
+    // Each bound resolves on its own, so a single hand-typed value does not
+    // discard the other one.
+    // 1. Config thresholds (highest priority): typing a bound in the editor is
+    //    an explicit decision, and what it shows must be what the card shows.
+    let lo = cfg.min != null && cfg.min !== "" ? parseFloat(cfg.min) : null;
+    let hi = cfg.max != null && cfg.max !== "" ? parseFloat(cfg.max) : null;
+
+    // 2. Measurement thresholds from the PoolLab app → write to cache. Only
+    //    these are cached: a config value is already in the config, and
+    //    caching it would let it outlive its own removal.
+    const alo = a.ideal_low != null && parseFloat(a.ideal_low) !== -1 ? parseFloat(a.ideal_low) : null;
+    const ahi = a.ideal_high != null && parseFloat(a.ideal_high) !== -1 ? parseFloat(a.ideal_high) : null;
+    if (alo != null || ahi != null) _thCache.set(cfg.entity, alo, ahi);
+    if (lo == null) lo = alo;
+    if (hi == null) hi = ahi;
+
+    // 3. Cache fallback (read only), for measurements published without targets
+    if (lo == null || hi == null) {
+      const cached = _thCache.get(cfg.entity);
+      if (cached) { if (lo == null) lo = cached.lo; if (hi == null) hi = cached.hi; }
     }
     // 4. Built-in defaults (read only, never cached)
     if (lo == null || hi == null) {
