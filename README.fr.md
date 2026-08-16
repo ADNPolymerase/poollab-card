@@ -99,7 +99,9 @@ Chaque capteur choisi a sa propre section repliable (icône, nom affiché, seuil
 
 ## Fonctionnement des cibles
 
-Priorité des seuils : attributs de la mesure (app PoolLab) → config de la carte (`min`/`max`) → cache du navigateur (`localStorage`) → valeurs par défaut intégrées. Les seuils n'ont besoin de venir du cloud PoolLab qu'une seule fois — ils sont ensuite mémorisés localement et réutilisés pour les mesures sans cible.
+Priorité des seuils : config de la carte (`min`/`max`, c'est-à-dire ce que vous saisissez dans l'éditeur) → attributs de la mesure (app PoolLab) → cache du navigateur (`localStorage`) → valeurs par défaut intégrées. Chaque borne se résout indépendamment : ne renseigner que `min` conserve la valeur de l'app pour `max`.
+
+Laissez les champs de seuils tels quels et la carte suit l'app PoolLab ; saisissez une valeur et c'est elle qui prime, dans l'éditeur comme sur la carte. Les seuils de l'app n'ont besoin de venir du cloud PoolLab qu'une seule fois — ils sont ensuite mémorisés localement et réutilisés pour les mesures sans cible. Les valeurs que vous saisissez ne sont pas mises en cache : elles vivent dans la config de la carte, donc en retirer une prend effet immédiatement.
 
 ## Langues
 

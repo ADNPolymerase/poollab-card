@@ -99,7 +99,9 @@ Each chosen sensor gets its own expandable section (icon, display name, threshol
 
 ## How targets work
 
-Threshold priority: measurement attributes from the PoolLab app → card config (`min`/`max`) → browser cache (`localStorage`) → built-in defaults. Thresholds only need to come from the PoolLab cloud once — they're then remembered locally and reused for measurements without targets.
+Threshold priority: card config (`min`/`max`, i.e. what you type in the editor) → measurement attributes from the PoolLab app → browser cache (`localStorage`) → built-in defaults. Each bound resolves on its own, so setting only `min` keeps the app's value for `max`.
+
+Leave the threshold fields untouched and the card follows the PoolLab app; type a value and it wins, in the editor and on the card alike. App thresholds only need to come from the PoolLab cloud once — they're then remembered locally and reused for measurements without targets. Values you type are not cached: they live in the card config, so removing one takes effect immediately.
 
 ## Languages
 
