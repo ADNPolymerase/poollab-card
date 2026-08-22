@@ -14,7 +14,7 @@
 
 Multilingual (12 languages: EN, FR, DE, ES, IT, NL, PT, SV, NO, DA, PL, RU — auto-detected from Home Assistant).
 
-A clean Lovelace card for the [PoolLab](https://github.com/Production-Wright/poollab) water analysis integration.
+A clean Lovelace card for the [Pool Lab](https://github.com/dala318/python_poollab) water analysis integration.
 Shows your latest reading for each parameter, the previous measurements, and colors the current value
 against its ideal target — with proper handling of **OVER** readings (values above the test's measurable range).
 
@@ -32,13 +32,22 @@ against its ideal target — with proper handling of **OVER** readings (values a
 - **OVER handling**: when a test exceeds its measurable ceiling, the card shows `> max` (built-in table of PoolLab ceilings: pH 8.4, chlorine 6, CYA 100, TA 200…) instead of a meaningless number.
 - Native HA editor (entity picker) + full YAML control.
 
-## Installation (HACS)
+## Installation
 
-1. HACS → three dots → **Custom repositories**
-2. Add `https://github.com/ADNPolymerase/poollab-card` with category **Dashboard**
-3. Install **PoolLab Card**, then hard-refresh your browser (Ctrl+Shift+R / Cmd+Shift+R)
+Requires the [Pool Lab integration](https://github.com/dala318/python_poollab), also in HACS — search **Pool Lab**.
 
-Manual alternative: copy `poollab-card.js` from the [latest release](https://github.com/ADNPolymerase/poollab-card/releases) to `config/www/`, then add `/local/poollab-card.js` as a JavaScript-module resource.
+### HACS (recommended)
+
+1. Open **HACS** and search for **PoolLab Card**
+2. Download it
+3. Hard-refresh your browser (Ctrl+Shift+R / Cmd+Shift+R)
+
+### Direct from this repository
+
+1. Download `poollab-card.js` from the [latest release](https://github.com/ADNPolymerase/poollab-card/releases)
+2. Copy it to `config/www/`
+3. Add `/local/poollab-card.js` as a **JavaScript module** resource (Settings → Dashboards → three dots → Resources)
+4. Hard-refresh your browser
 
 ## Usage
 

@@ -32,13 +32,22 @@ les mesures précédentes datées, et une gestion correcte des mesures **OVER** 
 - **Gestion OVER** : quand un test dépasse sa plage mesurable, la carte affiche `> max` (table intégrée des plafonds PoolLab : pH 8.4, chlore 6, CYA 100, TA 200…) au lieu d'une valeur aberrante.
 - Éditeur natif HA (sélecteur d'entités) + contrôle YAML complet.
 
-## Installation (HACS)
+## Installation
 
-1. **HACS → ⋮ → Dépôts personnalisés**
-2. Ajouter `https://github.com/ADNPolymerase/poollab-card` en catégorie **Dashboard**
-3. Installer **PoolLab Card**, puis recharger le navigateur en vidant le cache (Ctrl+Maj+R / Cmd+Maj+R)
+Nécessite l'[intégration Pool Lab](https://github.com/dala318/python_poollab), également dans HACS — rechercher **Pool Lab**.
 
-Alternative manuelle : copiez `poollab-card.js` depuis la [dernière version](https://github.com/ADNPolymerase/poollab-card/releases) vers `config/www/`, puis ajoutez `/local/poollab-card.js` comme ressource module JavaScript.
+### HACS (recommandé)
+
+1. Ouvrir **HACS** et rechercher **PoolLab Card**
+2. Télécharger
+3. Recharger le navigateur en vidant le cache (Ctrl+Maj+R / Cmd+Maj+R)
+
+### Directement depuis ce dépôt
+
+1. Télécharger `poollab-card.js` depuis la [dernière version](https://github.com/ADNPolymerase/poollab-card/releases)
+2. Le copier dans `config/www/`
+3. Ajouter `/local/poollab-card.js` comme ressource **module JavaScript** (Paramètres → Tableaux de bord → ⋮ → Ressources)
+4. Recharger le navigateur en vidant le cache
 
 ## Utilisation
 
