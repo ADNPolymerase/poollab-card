@@ -556,6 +556,27 @@ localStorage.clear();
 await fetchCard({}, { state: { value: 999999, measure: 103, measured_at: '2026-09-20T10:00:00' } });
 check('relevé OVER non mémorisé', (cached() || []).length, 0);
 
+// On the same measure id, the fetched reading wins over the cached copy: the
+// cache is a memory of what was shown, never a source that can override HA.
+localStorage.setItem(HIST_KEY, JSON.stringify([
+  { value: 9.99, measure: M[1].measure, measured_at: M[1].measured_at },
+]));
+check('même measure → la valeur de l\'historique prime sur celle du cache',
+  prevs(await fetchCard(wsHist(...M), { keepCache: true })).join(','), '1.42,1.68');
+
+// A long retention (90 days here) keeps the full history, so the cache must be
+// inert: it can complete, never displace a fresher reading nor reorder anything.
+const OLD = [
+  { value: 0.7, measure: 90, measured_at: '2026-07-01T10:00:00' },
+  { value: 0.8, measure: 91, measured_at: '2026-07-08T10:00:00' },
+  { value: 0.9, measure: 92, measured_at: '2026-07-15T10:00:00' },
+];
+localStorage.setItem(HIST_KEY, JSON.stringify([OLD[2], OLD[1], OLD[0]]));
+check('historique complet → le cache périmé ne déplace rien',
+  prevs(await fetchCard(wsHist(...M), { keepCache: true })).join(','), '1.42,1.68');
+check('historique complet → le cache périmé est évincé',
+  (cached() || []).map(m => m.measure).join(','), '102,101,100');
+
 // Seeding from the cache must not date the CURRENT value from a stale entry:
 // the authoritative date of the newest reading is its own attribute.
 localStorage.clear();
