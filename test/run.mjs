@@ -469,6 +469,114 @@ check("l'écho de setConfig n'émet aucun config-changed",
 check("l'écho de setConfig ne perd pas l'entité",
   echo.ed._config.entities.map(e => e.entity).join(','), AID);
 
+// ── Measurements survive Home Assistant's recorder purge ────────────────────
+// The card rebuilds its previous readings from the sensor's own state history,
+// and Home Assistant purges raw states after 10 days by default. Older readings
+// then vanish from a card configured to show three. What the card has already
+// seen is kept in localStorage and merged back in, keyed on the incrementing
+// `measure` id PoolLab puts on every reading.
+
+const M = [
+  { value: 1.42, measure: 100, measured_at: '2026-09-06T10:00:00' },
+  { value: 1.68, measure: 101, measured_at: '2026-09-09T10:00:00' },
+  { value: 2.03, measure: 102, measured_at: '2026-09-16T10:00:00' },
+];
+const HIST_KEY = `poollab_hist::${ID}`;
+
+/** A Home Assistant history payload, oldest first, as the WS API returns it. */
+const wsHist = (...meas) => ({ [ID]: meas.map(m => ({
+  s: String(m.value),
+  a: { parameter: 'Chlorine free', measure: m.measure, measured_at: m.measured_at },
+  lu: 0,
+})) });
+
+/** Renders a card and lets _fetchHistory really run against a WS payload. */
+async function fetchCard(ws, { state = M[2], keepCache = false, measurements = 3 } = {}) {
+  if (!keepCache) localStorage.clear();
+  const c = new Card();
+  const slots = {};
+  c.querySelector = sel => (slots[sel] = slots[sel] || { innerHTML: '', textContent: '' });
+  c.setConfig({ measurements, entities: [{ entity: ID }] });
+  c.hass = {
+    states: { [ID]: sensor('Chlorine free', state.value,
+      { measure: state.measure, measured_at: state.measured_at }) },
+    locale: { language: 'en' },
+    callWS: () => Promise.resolve(ws),
+  };
+  await new Promise(r => setTimeout(r, 0));
+  return slots['#pl-rows'].innerHTML;
+}
+
+const cached = () => JSON.parse(localStorage.getItem(HIST_KEY) || 'null');
+
+check('historique complet → les deux précédentes affichées',
+  prevs(await fetchCard(wsHist(...M))).join(','), '1.42,1.68');
+check('historique complet → mis en cache',
+  (cached() || []).map(m => m.measure).join(','), '102,101,100');
+
+// The purge: Home Assistant no longer has the older states, only the newest.
+localStorage.setItem(HIST_KEY, JSON.stringify([M[2], M[1], M[0]]));
+check('purge du recorder → les précédentes reprises du cache',
+  prevs(await fetchCard(wsHist(M[2]), { keepCache: true })).join(','), '1.42,1.68');
+
+localStorage.clear();
+check('cache vide et historique purgé → aucune précédente',
+  prevs(await fetchCard(wsHist(M[2]))).length, 0);
+
+// The merge must not double up when history and cache overlap.
+localStorage.setItem(HIST_KEY, JSON.stringify([M[2], M[1], M[0]]));
+check('recouvrement historique/cache → aucun doublon',
+  prevs(await fetchCard(wsHist(...M), { keepCache: true })).join(','), '1.42,1.68');
+
+// Never keep more than a row can display.
+const FIVE = [
+  { value: 0.9, measure: 98, measured_at: '2026-08-28T10:00:00' },
+  { value: 1.1, measure: 99, measured_at: '2026-09-02T10:00:00' },
+  ...M,
+];
+await fetchCard(wsHist(...FIVE));
+check('jamais plus de 3 mesures conservées', (cached() || []).length, 3);
+check('les 3 conservées sont les plus récentes',
+  (cached() || []).map(m => m.measure).join(','), '102,101,100');
+
+// A newer reading must take the head, whatever the order the cache was in.
+localStorage.setItem(HIST_KEY, JSON.stringify([M[0], M[1]]));
+check('tri décroissant sur measured_at',
+  (await fetchCard(wsHist(M[2]), { keepCache: true }),
+   (cached() || []).map(m => m.measure).join(',')), '102,101,100');
+
+// Even if history returns nothing at all, the current reading is worth keeping.
+localStorage.clear();
+await fetchCard({});
+check('relevé courant mémorisé même sans historique',
+  (cached() || []).map(m => m.measure).join(','), '102');
+
+// An OVER reading is not a measurement, it must not enter the cache.
+localStorage.clear();
+await fetchCard({}, { state: { value: 999999, measure: 103, measured_at: '2026-09-20T10:00:00' } });
+check('relevé OVER non mémorisé', (cached() || []).length, 0);
+
+// Seeding from the cache must not date the CURRENT value from a stale entry:
+// the authoritative date of the newest reading is its own attribute.
+localStorage.clear();
+localStorage.setItem(HIST_KEY, JSON.stringify([M[1]]));   // cache stops at Sep 9
+{
+  const c = new Card();
+  const slots = {};
+  c.querySelector = sel => (slots[sel] = slots[sel] || { innerHTML: '', textContent: '' });
+  c.setConfig({ entities: [{ entity: ID }] });
+  c._histAt = now();                                      // the WS call must not fire
+  c.hass = {
+    states: { [ID]: sensor('Chlorine free', M[2].value,
+      { measure: M[2].measure, measured_at: M[2].measured_at }) },
+    locale: { language: 'en' },
+    callWS: () => { throw new Error('callWS ne devrait pas être appelé'); },
+  };
+  const curDate = (slots['#pl-rows'].innerHTML
+    .match(/class="pl-cur [a-z-]+">[^<]*<\/span>(?:<span class="pl-unit">[^<]*<\/span>)?<\/div><span class="pl-mdate">([^<]*)</) || [])[1] ?? '(aucune)';
+  contains('date du relevé courant prise sur ses attributs, pas sur le cache', curDate, '16');
+}
+
 // ── Editor and card must show the same target ───────────────────────────────
 // The number pre-filled in the editor's threshold box and the number printed on
 // the card's target line come from two separate cascades. They have to resolve
