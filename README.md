@@ -112,6 +112,12 @@ Threshold priority: card config (`min`/`max`, i.e. what you type in the editor) 
 
 Leave the threshold fields untouched and the card follows the PoolLab app; type a value and it wins, in the editor and on the card alike. App thresholds only need to come from the PoolLab cloud once — they're then remembered locally and reused for measurements without targets. Values you type are not cached: they live in the card config, so removing one takes effect immediately.
 
+## Previous measurements
+
+Previous readings are rebuilt from the sensor's own state history, and Home Assistant purges raw states after `purge_keep_days` (10 days by default). So that older readings stay visible, the card remembers the measurements it has already seen in the browser's `localStorage`, keyed on the reading id PoolLab stamps on each test, and merges them back into the history it fetches. It keeps at most three per parameter, which is all a row can display.
+
+You do not need to raise `purge_keep_days` for the card. Two consequences worth knowing: the memory is per browser, so a phone and a computer build it up separately, and it starts the day you install the card. Readings purged before that are gone, and previous values reappear as you take new measurements.
+
 ## Languages
 
 12 languages (EN, FR, DE, ES, IT, NL, PT, SV, NO, DA, PL, RU), auto-detected from Home Assistant with English fallback; force with `language:` or in the editor. Add a language or override any string from YAML — no PR needed — via `translations`, keyed by language code:

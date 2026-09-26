@@ -112,6 +112,12 @@ Priorité des seuils : config de la carte (`min`/`max`, c'est-à-dire ce que vou
 
 Laissez les champs de seuils tels quels et la carte suit l'app PoolLab ; saisissez une valeur et c'est elle qui prime, dans l'éditeur comme sur la carte. Les seuils de l'app n'ont besoin de venir du cloud PoolLab qu'une seule fois — ils sont ensuite mémorisés localement et réutilisés pour les mesures sans cible. Les valeurs que vous saisissez ne sont pas mises en cache : elles vivent dans la config de la carte, donc en retirer une prend effet immédiatement.
 
+## Mesures précédentes
+
+Les mesures précédentes sont reconstruites depuis l'historique d'état du capteur, or Home Assistant purge les états bruts au bout de `purge_keep_days` (10 jours par défaut). Pour que les mesures anciennes restent visibles, la carte mémorise dans le `localStorage` du navigateur celles qu'elle a déjà vues, indexées sur l'identifiant de mesure que PoolLab attribue à chaque test, et les refusionne avec l'historique qu'elle récupère. Elle en conserve au plus trois par paramètre, soit tout ce qu'une ligne peut afficher.
+
+Il n'est pas nécessaire d'augmenter `purge_keep_days` pour la carte. Deux conséquences à connaître : la mémoire est propre à chaque navigateur, un téléphone et un ordinateur la constituent donc séparément, et elle démarre le jour de l'installation de la carte. Les mesures purgées avant cela sont perdues, et les valeurs précédentes réapparaissent au fil des nouvelles mesures.
+
 ## Langues
 
 12 langues (EN, FR, DE, ES, IT, NL, PT, SV, NO, DA, PL, RU), détectées automatiquement depuis Home Assistant avec repli anglais ; forcez avec `language:` ou dans l'éditeur. Ajoutez une langue ou surchargez n'importe quelle chaîne depuis YAML — sans PR — via `translations`, indexé par code langue :
