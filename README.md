@@ -2,6 +2,8 @@
 
 # PoolLab Card
 
+<a href="https://github.com/ADNPolymerase/poollab-card/blob/main/README.fr.md"><img src="https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/lang-fr.svg" alt="Lire en français" height="60"></a>
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/poollab-card?sort=semver)](https://github.com/ADNPolymerase/poollab-card/releases)
 [![HACS Action](https://github.com/ADNPolymerase/poollab-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/poollab-card/actions/workflows/hacs.yml)
@@ -19,8 +21,6 @@ Shows your latest reading for each parameter, the previous measurements, and col
 against its ideal target — with proper handling of **OVER** readings (values above the test's measurable range).
 
 > Not affiliated with PoolLab® / Water-i.d. — independent community card.
-
-> 🇫🇷 [Lire en français](README.fr.md)
 
 ![PoolLab Card](https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/screenshot.png)
 

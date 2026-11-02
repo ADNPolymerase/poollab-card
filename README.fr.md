@@ -2,6 +2,8 @@
 
 # PoolLab Card
 
+<a href="https://github.com/ADNPolymerase/poollab-card/blob/main/README.md"><img src="https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/lang-en.svg" alt="Read in English" height="60"></a>
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/poollab-card?sort=semver)](https://github.com/ADNPolymerase/poollab-card/releases)
 [![HACS Action](https://github.com/ADNPolymerase/poollab-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/poollab-card/actions/workflows/hacs.yml)
@@ -19,8 +21,6 @@ Elle affiche proprement vos analyses d'eau : pour chaque paramètre, la valeur a
 les mesures précédentes datées, et une gestion correcte des mesures **OVER** (au-delà de la plage du test).
 
 > Non affiliée à PoolLab® / Water-i.d. — carte communautaire indépendante.
-
-> 🇬🇧 [Read in English](README.md)
 
 ![Carte PoolLab](https://raw.githubusercontent.com/ADNPolymerase/poollab-card/main/docs/screenshot.fr.png)
 
